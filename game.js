@@ -1,5 +1,5 @@
 // ===================================================================
-//  你去哪儿? 베이징 탈출 - 게임 본체 (6과 Nǐ qù nǎr?)
+//  你喜欢做什么? 꿈과 취미 탈출 - 게임 본체 (5과 Nǐ xǐhuan zuò shénme?)
 //  문제는 구글 시트(설정은 data/quiz.js 맨 위), 맵은 data/maps.js 에서 고칩니다.
 // ===================================================================
 
@@ -29,66 +29,60 @@ const SOLID = ["desk", "chair", "computer", "bookshelf", "board",
               "fruitstall", "tanghulu", "busstop", "trafficlight", "roundtable", "lantern",
               "bunk2", "bunk3", "infoscreen", "blocker", "stopsign", "yieldsign", "childcn",
               "childkr", "signpost", "bike", "horse", "hay", "brochure", "pond", "pavilion",
-              "bus_l", "bus_m", "bus_r", "plane", "seat"];
+              "bus_l", "bus_m", "bus_r", "plane", "seat",
+              // ↓ 7과 먹거리 물건
+              "soypot", "wontonpot", "frywok", "ytbasket", "jbcart", "grill", "snackshelf", "fridge",
+              "tastebar", "icecream", "bigcup", "bigbowl", "foodtable", "malatable", "ingredshelf",
+              "steamer", "teatable", "teashelf", "bamboo", "pandarest", "bed", "deliverybox", "scooter",
+              // ↓ 8과 송나라 시장 물건 (archway 는 지나가는 문이라 넣지 않습니다)
+              "flag", "ustall", "cart", "donkey", "camel", "boat", "scalestall", "clothrack", "mannequin",
+              "shoeshelf", "dyevat", "redpaper", "moneycounter", "qrstand", "crate",
+              // ↓ 5과 운동 · 취미 · 직업 물건 (dishu 바닥 글씨는 밟고 지나갈 수 있어요)
+              "hoop", "bleacher", "goal", "sball", "ballcart", "pptable", "pool", "bnet", "batcage", "policecar",
+              "moviescreen", "curtain", "masks", "piying", "speaker", "mirror", "trophy1"];
 
 // ---------- 문제를 놓을 자리 (문제 순서대로 최대 24곳) ----------
 const SPOTS = [
- // 문제가 모든 구역에 퍼지도록 광장 → 东 → 南 → 西 → 北 → 공원 순서로 돌아가며 배치합니다
- {room:"gate",     x: 6.5, y: 6.5, name:"광장 안내판",          floor:"광장"},
- {room:"class101", x:18.5, y: 8.5, name:"여자 화장실 세면대",   floor:"东 동쪽"},
- {room:"music",    x:18.5, y: 5.5, name:"탕후루 수레",          floor:"南 남쪽"},
- {room:"library",  x:19.5, y: 5.5, name:"침대칸 창가 탁자",     floor:"西 서쪽"},
- {room:"class301", x:18.5, y: 8.5, name:"자전거 대여 키오스크", floor:"北 북쪽"},
- {room:"rooftop",  x: 8.5, y: 9.5, name:"공원 안내판",          floor:"공원"},
- {room:"class102", x:18.5, y: 8.5, name:"은행 ATM",             floor:"东 동쪽"},
- {room:"art",      x:18.5, y: 5.5, name:"버스 정류장 표지판",   floor:"南 남쪽"},
- {room:"computer", x:18.5, y:10.5, name:"탑승 수속 키오스크",   floor:"西 서쪽"},
- {room:"office",   x:18.5, y: 2.5, name:"여행 책자 꽂이",       floor:"北 북쪽"},
- // 두 번째 바퀴 (같은 순서, 같은 곳의 다른 자리)
- {room:"gate",     x:16.5, y: 8.5, name:"东南西北 방향 표지판", floor:"광장"},
- {room:"science",  x:18.5, y: 5.5, name:"병원 간호사실",        floor:"东 동쪽"},
- {room:"class201", x:18.5, y:10.5, name:"식당 메뉴판",          floor:"南 남쪽"},
- {room:"broadcast",x:18.5, y: 5.5, name:"신호등",               floor:"西 서쪽"},
- {room:"class302", x:18.5, y: 8.5, name:"말 타기 안내판",       floor:"北 북쪽"},
- {room:"rooftop",  x: 8.5, y: 3.5, name:"공원 정자",            floor:"공원"},
- {room:"class101", x: 5.5, y: 2.5, name:"남자 화장실 두 번째 칸", floor:"东 동쪽"},
- {room:"music",    x: 7.5, y: 6.5, name:"수박 가게",            floor:"南 남쪽"},
- {room:"library",  x: 9.5, y: 9.5, name:"승무원 카운터",        floor:"西 서쪽"},
- {room:"office",   x:18.5, y: 6.5, name:"지도 출력기",          floor:"北 북쪽"},
- // 세 번째 바퀴
- {room:"class102", x: 5.5, y: 2.5, name:"은행 금고",            floor:"东 동쪽"},
- {room:"art",      x:18.5, y: 9.5, name:"정류장 신호등",        floor:"南 남쪽"},
- {room:"computer", x:18.5, y: 5.5, name:"출발 안내 전광판",     floor:"西 서쪽"},
- {room:"class301", x: 5.5, y: 2.5, name:"헬멧 선반",            floor:"北 북쪽"},
- {room:"science",  x:18.5, y: 9.5, name:"병원 약품장",          floor:"东 동쪽"}
+ // 꿈의 광장 → 운동 장소 → 직업 체험 → 취미 장소 → 공원을 골고루 돌며 배치합니다
+ {room:"gate", x:6.5, y:6.5, name:"나의 꿈 응원 메시지판", floor:"꿈의 광장"},
+ {room:"class101", x:18.5, y:8.5, name:"탁구 대회 대진표", floor:"운동 1"},
+ {room:"hall1", x:3.5, y:7.5, name:"왼쪽 농구 골대", floor:"운동 1"},
+ {room:"music", x:18.5, y:5.5, name:"경찰차", floor:"운동 2"},
+ {room:"library", x:19.5, y:5.5, name:"사무실 복사기", floor:"취미"},
+ {room:"class301", x:18.5, y:7.5, name:"그림자극 무대", floor:"운동 3"},
+ {room:"up2", x:9.5, y:8.5, name:"축구공", floor:"운동 2"},
+ {room:"class102", x:18.5, y:8.5, name:"수영장 레인", floor:"운동 1"},
+ {room:"art", x:18.5, y:5.5, name:"병원 진료실", floor:"운동 2"},
+ {room:"computer", x:8.5, y:2.5, name:"작가의 책 읽는 탁자", floor:"취미"},
+ {room:"class302", x:5.5, y:2.5, name:"노래방 피아노", floor:"운동 3"},
+ {room:"up3", x:4.5, y:8.5, name:"地书 바닥 글씨", floor:"취미"},
+ {room:"science", x:18.5, y:5.5, name:"야구 배팅 연습망", floor:"운동 1"},
+ {room:"class201", x:18.5, y:5.5, name:"요리사의 웍", floor:"운동 2"},
+ {room:"broadcast", x:19.5, y:9.5, name:"팝콘 수레", floor:"취미"},
+ {room:"office", x:21.5, y:6.5, name:"춤 연습실 스피커", floor:"운동 3"},
+ {room:"up4", x:19.5, y:8.5, name:"태극권 정자", floor:"운동 3"},
+ {room:"rooftop", x:8.5, y:9.5, name:"꿈 정원 안내판", floor:"꿈 정원"},
+ {room:"gate", x:16.5, y:8.5, name:"광장무 스피커", floor:"꿈의 광장"},
+ {room:"rooftop", x:6.5, y:3.5, name:"언덕 위 정자", floor:"꿈 정원"},
+ {room:"hall1", x:20.5, y:7.5, name:"오른쪽 농구 골대", floor:"운동 1"},
+ {room:"class301", x:6.5, y:2.5, name:"변검 가면", floor:"운동 3"},
+ {room:"art", x:18.5, y:9.5, name:"약품장", floor:"운동 2"},
+ {room:"class101", x:5.5, y:2.5, name:"탁구공 수레", floor:"운동 1"},
+ {room:"science", x:18.5, y:9.5, name:"배드민턴 네트", floor:"운동 1"}
 ];
-// 예비 문제 자리 : 구글 시트 설정에서 '방 수' 를 줄였을 때, 고른 방의 자리가 문제 수보다 모자라면 여기서 더 씁니다
-// (그래도 모자라면 한 자리에 문제가 여러 개 쌓여서, 하나를 풀면 다음 문제가 나타납니다)
 const EXTRA_SPOTS = [
- {room:"class101",  x:12.5, y: 3.5, name:"화분", floor:"东 동쪽"},
- {room:"class101",  x: 9.5, y: 7.5, name:"남자 화장실 세면대", floor:"东 동쪽"},
- {room:"music",     x: 3.5, y: 2.5, name:"과일 가판대", floor:"南 남쪽"},
- {room:"music",     x:12.5, y: 4.5, name:"다른 과일 가판대", floor:"南 남쪽"},
- {room:"library",   x: 3.5, y: 2.5, name:"软卧 침대", floor:"西 서쪽"},
- {room:"library",   x:12.5, y: 2.5, name:"硬卧 침대", floor:"西 서쪽"},
- {room:"class301",  x:12.5, y: 3.5, name:"자전거", floor:"北 북쪽"},
- {room:"class301",  x: 9.5, y: 7.5, name:"다른 자전거", floor:"北 북쪽"},
- {room:"class102",  x:12.5, y: 3.5, name:"은행 창구", floor:"东 동쪽"},
- {room:"class102",  x: 9.5, y: 7.5, name:"대기 의자", floor:"东 동쪽"},
- {room:"art",       x: 5.5, y: 3.5, name:"버스", floor:"南 남쪽"},
- {room:"art",       x:14.5, y: 5.5, name:"벤치", floor:"南 남쪽"},
- {room:"computer",  x: 7.5, y: 3.5, name:"비행기", floor:"西 서쪽"},
- {room:"computer",  x: 3.5, y: 7.5, name:"대기 의자", floor:"西 서쪽"},
- {room:"office",    x: 3.5, y: 4.5, name:"안내 데스크", floor:"北 북쪽"},
- {room:"office",    x: 3.5, y: 8.5, name:"소파", floor:"北 북쪽"},
- {room:"science",   x: 3.5, y: 2.5, name:"병원 침대", floor:"东 동쪽"},
- {room:"science",   x: 3.5, y: 7.5, name:"다른 병원 침대", floor:"东 동쪽"},
- {room:"class201",  x: 3.5, y: 3.5, name:"원탁", floor:"南 남쪽"},
- {room:"class201",  x: 3.5, y: 7.5, name:"다른 원탁", floor:"南 남쪽"},
- {room:"broadcast", x: 4.5, y: 2.5, name:"한국 정지 표지판", floor:"西 서쪽"},
- {room:"broadcast", x: 7.5, y: 5.5, name:"중국 让 표지판", floor:"西 서쪽"},
- {room:"class302",  x: 3.5, y: 3.5, name:"말", floor:"北 북쪽"},
- {room:"class302",  x: 3.5, y: 7.5, name:"다른 말", floor:"北 북쪽"}
+ {room:"class101", x:12.5, y:6.5, name:"탁구대", floor:"운동 1"},
+ {room:"class102", x:5.5, y:2.5, name:"수영 트로피", floor:"운동 1"},
+ {room:"science", x:6.5, y:7.5, name:"배드민턴 네트", floor:"운동 1"},
+ {room:"music", x:4.5, y:6.5, name:"경찰 책상", floor:"운동 2"},
+ {room:"art", x:3.5, y:2.5, name:"병원 침대", floor:"운동 2"},
+ {room:"class201", x:9.5, y:7.5, name:"요리 탁자", floor:"운동 2"},
+ {room:"library", x:4.5, y:6.5, name:"회사 책상", floor:"취미"},
+ {room:"computer", x:3.5, y:2.5, name:"책장", floor:"취미"},
+ {room:"broadcast", x:4.5, y:2.5, name:"영화관 스피커", floor:"취미"},
+ {room:"class301", x:16.5, y:2.5, name:"다른 변검 가면", floor:"운동 3"},
+ {room:"class302", x:18.5, y:8.5, name:"스피커", floor:"운동 3"},
+ {room:"office", x:2.5, y:6.5, name:"다른 스피커", floor:"운동 3"}
 ];
 
 // ---------- 공원(rooftop) 미로 : 미로 끝에 반드시 문제 한 개 ----------
@@ -96,7 +90,7 @@ const EXTRA_SPOTS = [
 // 미로를 직접 걸어서 빠져나가야만 이 문제를 풀 수 있습니다.
 // 문제가 몇 개든(1개여도) 마지막 문제는 항상 여기로 옮겨 놓습니다.
 // 이 문제는 한 번 풀면 다른 문제를 틀려도 절대 되돌아가지 않습니다 (미로를 다시 걷지 않도록).
-const MAZE_SPOT = { room:"rooftop", x:22.5, y:2.5, name:"공원 미로 끝 비밀 화단", floor:"공원" };
+const MAZE_SPOT = { room:"rooftop", x:22.5, y:2.5, name:"꿈 미로 끝 비밀 화단", floor:"꿈 정원" };
 
 // ---------- 방 수 (구글 시트 '설정' 탭의 '방 수') ----------
 // 방 수를 적으면 탈출문에서 가까운 '문제가 있는 방' 만 그 수만큼 열고, 나머지 방은 닫아 버립니다
@@ -168,12 +162,12 @@ const FAR_SPOT = (ROOMS && !mazeOn) ? (USE_SPOTS.filter(s => s.room === ROOMS.fa
 const CFG = window.QUIZ_CONFIG || {};
 const QUIZ = (window.QUIZ || []).slice(0, SPOTS.length);
 
-// 보물상자 : 문제를 모두 풀면 교문 옆 상자가 열리고, 그 안의 마지막 문제 정답이 교문 비밀번호입니다.
+// 꿈 상자 : 문제를 모두 풀면 교문 옆 상자가 열리고, 그 안의 마지막 문제 정답이 교문 비밀번호입니다.
 const TRE = CFG.treasure || {};
 const useTreasure = TRE.use !== false &&
       String(TRE.question || "").trim() !== "" && String(TRE.answer || "").trim() !== "";
-const CHEST = { room: "gate", x: 9.5, y: 11.5, name: "여행 보물상자" };
-// ---------- 여럿이 나눠 보기 (보물상자 쪽지 · 모둠 문제) ----------
+const CHEST = { room: "gate", x: 9.5, y: 11.5, name: "꿈 상자" };
+// ---------- 여럿이 나눠 보기 (꿈 상자 쪽지 · 모둠 문제) ----------
 // n개를 group 명이 나눌 때 role 번이 받을 [시작 위치, 개수]
 function shareRange(n, g, r){
   let at = 0;
@@ -211,7 +205,7 @@ function myShare(parts){
 }
 function joinShare(parts, sep){ return parts.join(sep === " " ? "  " : "") }
 
-// 보물상자 쪽지
+// 꿈 상자 쪽지
 function chestSplit(){ return splitText(TRE.question, TRE.parts, Math.max(1, group)) }
 function chestParts(){ return chestSplit().parts }
 function myParts(){ return myShare(chestParts()) }
@@ -273,7 +267,7 @@ function shownSt(s){
   return same[same.length - 1] === s;
 }
 
-// 비밀번호 글자를 문제 전체에 골고루 나눠 배치 (보물상자를 쓰면 나누지 않습니다)
+// 비밀번호 글자를 문제 전체에 골고루 나눠 배치 (꿈 상자를 쓰면 나누지 않습니다)
 const digitAt = {};
 if (!useTreasure) (function () {
   const N = stations.length, L = PASS.length;
@@ -287,36 +281,35 @@ const tries = {};                    // 문제별로 틀린 횟수              
 const found = useTreasure ? [] : PASS.split("").map(() => null);  // 알아낸 비밀번호 글자
 
 // ---------- 게임 상태 ----------
-const VERSION = "v67 3D · 6과";             // 고칠 때마다 올립니다 (index.html 의 ?v= · sheet.js 의 VER 와 함께)
+const VERSION = "v70 3D · 5과";             // 고칠 때마다 올립니다 (index.html 의 ?v= · sheet.js 의 VER 와 함께)
 
 let maps = {}, room = "gate", keys = new Set(), last = performance.now(), step = 0;
 const SET = window.SETTINGS || {};     // 구글 시트 '설정' 탭에서 읽어 온 값
 const DEFAULT_NAME = String(SET.name || "1번홍길동").trim() || "1번홍길동";
 // 게임 제목 (설정 시트의 '제목' 칸)
-const GAME_TITLE = String(SET.title || "").trim() || "你去哪儿? 베이징 탈출";
+const GAME_TITLE = String(SET.title || "").trim() || "你喜欢做什么? 꿈과 취미 탈출";
 (function(){
   const t = document.querySelector("header .title") || document.querySelector(".title");
-  if (t) t.textContent = "🚄 " + GAME_TITLE;
+  if (t) t.textContent = "🏀 " + GAME_TITLE;
   document.title = GAME_TITLE;
 })();
 let started = false;                   // 시작 화면에서 이름을 넣어야 true 가 됩니다
 const MAX_GROUP = 10;                  // 함께할 수 있는 최대 인원
-const TEAM_MODE = SET.team === true;   // 구글 시트 설정의 "모둠 활동인가(Y/N)"
+const TEAM_MODE = SET.team === undefined ? (window.SHEET_CONFIG || {}).teamDefault === true
+                                          : SET.team === true;   // 구글 시트 설정의 "모둠 활동인가(Y/N)" (없으면 quiz.js 의 teamDefault)
 const NPC_QUIZ  = SET.npcQuiz === true; // 구글 시트 설정의 "NPC 문제(Y/N)" — 없으면 N
 let group = 1, role = 1;               // 함께하는 사람 수 / 내 역할 번호
 let p = { x: 5.5, y: 9.5, dir: 0, frame: 0, name: DEFAULT_NAME };
 let bubbles = [];
 const CHAT = [
-  "오늘 베이징 날씨가 참 좋네요.",
-  "톈안먼 광장은 정말 넓어요!",
-  "탕후루 먹어 봤어요? 정말 달콤해요.",
-  "Nǐ qù nǎr? 어디 가세요?",
-  "Nǐ zěnme qù? 어떻게 가세요?",
-  "중국에서는 동서남북을 东南西北(dōng nán xī běi)라고 해요.",
-  "길을 물을 때는 Qǐngwèn! 하고 시작해요.",
-  "지하철은 dìtiě, 버스는 gōngjiāochē!",
-  "자전거와 말은 qí, 나머지 탈것은 zuò예요.",
-  "베이징역 개찰구가 왜 잠겨 있는지 모르겠어요."
+  "Nǐ xǐhuan zuò shénme? 뭐 하는 걸 좋아해요?",
+  "Nǐ jiānglái xiǎng dāng shénme? 장래에 뭐가 되고 싶어요?",
+  "Nǐ huì dǎ pīngpāngqiú ma? 탁구 칠 줄 알아요?",
+  "Huì yìdiǎnr. 조금 할 줄 알아요.",
+  "Nǐ jiāojiao wǒ ba! 나 좀 가르쳐 줘요!",
+  "Méi wèntí! 문제없어요!",
+  "공으로 하는 운동은 dǎ, 축구만 tī!",
+  "꿈의 문이 왜 잠겨 있는지 모르겠어요."
 ].concat(SET.zombie === true ? [
   "좀비는 느리니까 침착하게 피해 다니세요!",
   "주사기를 맞은 좀비는 10초 동안 기절한대요.",
@@ -324,91 +317,69 @@ const CHAT = [
   "주사기가 떨어지면 바닥의 💉 를 주워요."
 ] : []);
 const npcs = [
-  // ---------- 톈안먼 광장 ----------
-  {room:"gate",     x: 8.5,y: 8.5,name:"왕징징",      skin:"student3",
-   chat:["Nǐ qù nǎr? 어디 가요?","Wǒ qù Tiān'ān Mén. 저는 톈안먼에 가요!"]},
-  {room:"gate",     x:13.5,y:10.5,name:"역무원",      skin:"janitor",
-   chat:["北京站(베이징역) 개찰구는 광장 아래쪽이에요.","문제를 모두 풀면 기차를 탈 수 있어요."]},
-  // ---------- 지하철 1호선 · 东 ----------
-  {room:"hall1",    x: 8.5,y: 6.5,name:"김동민",      skin:"student6",
-   chat:["Nǐ zěnme qù? 어떻게 가요?","Wǒ zuò dìtiě qù. 지하철 타고 가요."]},
-  {room:"hall1",    x:15.5,y: 7.5,name:"1호선 역무원", skin:"teacher",
-   chat:["东(dōng)은 동쪽이에요.","이 역에는 화장실, 은행, 병원 출구가 있어요."]},
-  {room:"class101", x: 9.5,y: 9.5,name:"장페이",      skin:"student4",
-   chat:["Qǐngwèn, xǐshǒujiān zài nǎr?","휴~ 드디어 洗手间(화장실)을 찾았다!"]},
-  {room:"class101", x: 4.5,y: 6.5,name:"청소 아저씨", skin:"janitor",
-   chat:["男은 남자, 女는 여자 화장실이에요.","손은 깨끗이 씻으세요!"]},
-  {room:"class102", x: 9.5,y: 9.5,name:"은행원",      skin:"teacher2",
-   chat:["yínháng은 은행이에요.","번호표를 뽑고 잠시 기다려 주세요."]},
-  {room:"class102", x:15.5,y: 6.5,name:"은행 손님",   skin:"student1",
-   chat:["ATM은 오른쪽 아래에 있어요.","银行의 银은 '은 은' 자래요."]},
-  {room:"science",  x: 9.5,y: 9.5,name:"의사 선생님", skin:"teacher4",
-   chat:["yīyuàn은 병원이에요.","중국에서 구급차를 부르는 번호는 120이에요."]},
-  {room:"science",  x: 5.5,y: 6.5,name:"간호사",      skin:"nurse",
-   chat:["약품장은 함부로 열면 안 돼요.","어디 아픈 곳은 없나요?"]},
-  // ---------- 지하철 2호선 · 南 ----------
-  {room:"up2",      x: 8.5,y: 6.5,name:"2호선 역무원", skin:"teacher3",
-   chat:["南(nán)은 남쪽이에요.","과일 시장, 버스 정류장, 식당 출구가 있어요."]},
-  {room:"up2",      x:14.5,y: 7.5,name:"여행객",      skin:"student5",
-   chat:["표 자판기에서 지하철 표를 샀어요.","Wǒ zuò dìtiě qù!"]},
-  {room:"music",    x: 9.5,y: 9.5,name:"판매원",      skin:"cook",
-   chat:["Yìzhí wǎng qián zǒu. 곧장 앞으로 가세요.","Bú tài yuǎn. 그다지 멀지 않아요."]},
-  {room:"music",    x: 5.5,y: 6.5,name:"과일 손님",   skin:"student2",
-   chat:["탕후루 하나 사 먹을까?","Yuǎn bu yuǎn? 멀어요, 안 멀어요?"]},
-  {room:"art",      x: 9.5,y: 9.5,name:"버스 기사",   skin:"janitor",
-   chat:["shàng chē! 차에 타세요!","내릴 때는 xià chē라고 해요."]},
-  {room:"art",      x: 5.5,y: 6.5,name:"버스 승객",   skin:"student7",
-   chat:["Wǒ zuò gōngjiāochē qù.","신호등이 초록불일 때 건너요."]},
-  {room:"class201", x: 9.5,y: 9.5,name:"요리사",      skin:"cook",
-   chat:["어서 오세요! 北京饭店이에요.","짜장면이 맛있고 양도 푸짐해요."]},
-  {room:"class201", x:15.5,y: 6.5,name:"종업원",      skin:"teacher2",
-   chat:["원탁을 돌리면 음식을 나눠 먹기 편해요.","메뉴판은 오른쪽 아래에 있어요."]},
-  // ---------- 지하철 3호선 · 西 ----------
-  {room:"up3",      x: 8.5,y: 6.5,name:"3호선 역무원", skin:"teacher4",
-   chat:["西(xī)는 서쪽이에요.","기차, 공항, 표지판관 출구가 있어요."]},
-  {room:"library",  x: 9.5,y: 5.5,name:"승무원",      skin:"nurse",
-   chat:["软卧(ruǎnwò)는 2층으로 된 푹신한 고급 침대칸이에요.","硬卧(yìngwò)는 3층으로 된 딱딱한 일반 침대칸이에요."]},
-  {room:"library",  x: 5.5,y:10.5,name:"기차 여행객", skin:"student7",
-   chat:["베이징에서 상하이까지 고속 열차로 4시간 반!","일반 열차로는 16시간 정도 걸린대요."]},
-  {room:"computer", x: 9.5,y: 9.5,name:"조종사",      skin:"principal",
-   chat:["Wǒ zuò fēijī qù Shǒu'ěr.","fēijī는 비행기예요."]},
-  {room:"computer", x: 5.5,y: 6.5,name:"공항 직원",   skin:"teacher4",
-   chat:["전광판에 Běijīng, Shǒu'ěr, Dōngjīng이 보여요.","Shǒu'ěr의 ' 는 격음 부호예요."]},
-  {room:"broadcast",x: 9.5,y: 9.5,name:"교통 경찰",   skin:"teacher3",
-   chat:["중국 정지 표지판에는 停(tíng)이라고 써 있어요.","양보 표지판에는 让(ràng)!"]},
-  {room:"broadcast",x:15.5,y: 7.5,name:"견학 학생",   skin:"student1",
-   chat:["한국과 중국 표지판 모양이 비슷하죠?","어린이 보호 표지판은 색이 달라요."]},
-  // ---------- 지하철 4호선 · 北 ----------
-  {room:"up4",      x: 8.5,y: 6.5,name:"4호선 역무원", skin:"teacher",
-   chat:["北(běi)는 북쪽이에요.","끝 계단으로 나가면 공원이에요!"]},
-  {room:"up4",      x:14.5,y: 7.5,name:"산책하는 할아버지", skin:"principal",
-   chat:["东南西北, dōng nán xī běi!","공원 미로는 가 보셨어요?"]},
-  {room:"class301", x: 9.5,y: 9.5,name:"대여소 직원", skin:"student5",
-   chat:["자전거는 qí를 써요. Qí zìxíngchē!","자전거 탈 때는 헬멧을 꼭 쓰세요."]},
-  {room:"class301", x: 4.5,y: 6.5,name:"자전거 손님", skin:"student3",
-   chat:["Wǒ qí zìxíngchē qù gōngyuán.","자전거는 zuò가 아니라 qí예요!"]},
-  {room:"class302", x: 9.5,y: 9.5,name:"목장 주인",   skin:"gardener",
-   chat:["말을 탈 때도 qí! Qí mǎ.","mǎ는 말이에요."]},
-  {room:"class302", x:15.5,y: 6.5,name:"말 타는 학생", skin:"student4",
-   chat:["걸터앉아 타는 건 qí, 올라앉아 타는 건 zuò!","건초는 말 간식이에요."]},
-  {room:"office",   x: 8.5,y: 9.5,name:"안내원",      skin:"teacher2",
-   chat:["Wǎng zuǒ guǎi는 왼쪽으로 도세요.","Wǎng yòu guǎi는 오른쪽으로 도세요."]},
-  {room:"office",   x:14.5,y: 6.5,name:"여행 가이드", skin:"nurse",
-   chat:["여행하고 싶은 중국 도시의 홍보 자료를 만들어 보세요.","교통편, 볼거리, 먹을거리를 정하면 돼요."]},
-  {room:"office",   x: 5.5,y:10.5,name:"관광객",      skin:"student6",
-   chat:["汽车(qìchē)는 기차가 아니라 자동차래요!","중국어를 배우면 여행이 더 즐거워요."]},
-  // ---------- 공원 ----------
-  {room:"rooftop",  x: 6.5,y: 4.5,name:"공원 관리인", skin:"gardener",
-   chat:["gōngyuán은 공원이에요.","연못에 오리랑 물고기가 살아요."]},
-  {room:"rooftop",  x: 5.5,y: 9.5,name:"산책하는 아주머니", skin:"teacher2",
-   chat:["정자에서 쉬었다 가세요.","오른쪽 절반은 전부 울타리 미로예요."]},
-  {room:"rooftop",  x: 3.5,y:10.5,name:"태극권 할아버지", skin:"principal",
-   chat:["아침마다 공원에서 운동한단다.","Nǐ qù nǎr? 어디 가니?"]},
-  // ---------- 공원 미로 (오른쪽 절반) ----------
-  {room:"rooftop",  x: 9.5,y: 7.5,name:"정원사 아저씨", skin:"janitor",
-   chat:["이 울타리는 제가 다 다듬었답니다.","미로 끝까지 가 본 사람은 아직 없어요."]},
-  {room:"rooftop",  x: 7.5,y: 6.5,name:"미로 지킴이", skin:"student2",
-   chat:["미로 끝 화단에 마지막 문제가 있어요.","울타리는 넘어갈 수 없어요. 길을 찾아야 해요!"]}
+  {room:"gate", x:8.5, y:8.5, name:"왕징징", skin:"wangjj", chat:["Nǐ xǐhuan zuò shénme? 너는 뭐 하는 걸 좋아해?", "Nǐ jiānglái xiǎng dāng shénme? 장래에 뭐가 되고 싶어?"]},
+  {room:"gate", x:6.5, y:9.5, name:"김동민", skin:"dongmin", chat:["Wǒ xǐhuan kàn shū. 나는 책 읽는 걸 좋아해.", "Wǒ xiǎng dāng zuòjiā. 나는 작가가 되고 싶어."]},
+  {room:"gate", x:12.5, y:8.5, name:"광장무 할머니", skin:"dancer", chat:["광장무는 건강을 위해 다 같이 추는 춤이에요!", "Hěn yǒu yìsi! 정말 재미있어요!"]},
+  {room:"gate", x:14.5, y:8.5, name:"광장무 아주머니", skin:"dancer2", chat:["광장무는 건강을 위해 다 같이 추는 춤이에요!", "Hěn yǒu yìsi! 정말 재미있어요!"]},
+  {room:"gate", x:12.5, y:9.5, name:"광장무 친구", skin:"dancer2", chat:["광장무는 건강을 위해 다 같이 추는 춤이에요!", "Hěn yǒu yìsi! 정말 재미있어요!"]},
+  {room:"gate", x:14.5, y:9.5, name:"광장무 할아버지", skin:"dancer", chat:["광장무는 건강을 위해 다 같이 추는 춤이에요!", "Hěn yǒu yìsi! 정말 재미있어요!"]},
+  {room:"gate", x:5.5, y:8.5, name:"地书 할아버지", skin:"taichi", mode:"opera", chat:["물붓으로 바닥에 글씨를 써요. 地书(dìshū)!", "마르면 사라지니 또 쓰지요."]},
+  {room:"gate", x:18.5, y:7.5, name:"空竹 아저씨", skin:"song3", mode:"dance", chat:["空竹(kōngzhú)는 줄로 돌리는 장구 모양 놀이예요.", "Hěn yǒu yìsi!"]},
+  {room:"gate", x:3.5, y:7.5, name:"판다 응원단", skin:"panda1", chat:["꿈을 응원해요! 🐼", "梦想成真! 꿈은 이루어진다!"]},
+  {room:"hall1", x:7.5, y:7.5, name:"농구 선수", skin:"bball", chat:["Wǒ xǐhuan dǎ lánqiú! 농구 좋아해!", "lánqiú는 dǎ(打)와 같이 써요."]},
+  {room:"hall1", x:15.5, y:6.5, name:"농구 선수 2", skin:"bball2", mode:"hoop", chat:["Nǐ huì dǎ lánqiú ma?", "Huì yìdiǎnr!"]},
+  {room:"hall1", x:12.5, y:8.5, name:"농구 선수 3", skin:"bball", chat:["슛~ 골인! 🏀", "Wǒ xiǎng dāng lánqiú xuǎnshǒu!"]},
+  {room:"hall1", x:10.5, y:5.5, name:"코치", skin:"teacher3", chat:["공으로 하는 운동은 대부분 dǎ!", "축구만 발로 차니까 tī(踢)!"]},
+  {room:"up2", x:7.5, y:6.5, name:"축구 선수", skin:"soccer", chat:["Wǒ xǐhuan tī zúqiú! 축구 좋아해!", "zúqiú는 tī(踢)와 같이 써요."]},
+  {room:"up2", x:14.5, y:7.5, name:"축구 선수 2", skin:"soccer2", chat:["슛~! ⚽", "Nǐ huì tī zúqiú ma?"]},
+  {room:"up2", x:11.5, y:8.5, name:"축구 팬", skin:"student6", mode:"dance", chat:["Wǒ shì qiúmí! 나는 축구 팬!", "mí(迷)는 무언가를 열광적으로 좋아하는 사람이에요."]},
+  {room:"up3", x:11.5, y:7.5, name:"광장무 대장", skin:"dancer", chat:["광장무는 건강을 위해 다 같이 추는 춤이에요!", "Hěn yǒu yìsi! 정말 재미있어요!"]},
+  {room:"up3", x:13.5, y:7.5, name:"광장무 회원", skin:"dancer2", chat:["광장무는 건강을 위해 다 같이 추는 춤이에요!", "Hěn yǒu yìsi! 정말 재미있어요!"]},
+  {room:"up3", x:11.5, y:8.5, name:"광장무 회원 2", skin:"dancer2", chat:["광장무는 건강을 위해 다 같이 추는 춤이에요!", "Hěn yǒu yìsi! 정말 재미있어요!"]},
+  {room:"up3", x:13.5, y:8.5, name:"광장무 회원 3", skin:"dancer", chat:["광장무는 건강을 위해 다 같이 추는 춤이에요!", "Hěn yǒu yìsi! 정말 재미있어요!"]},
+  {room:"up3", x:5.5, y:8.5, name:"地书 선생님", skin:"taichi", mode:"opera", chat:["地书(dìshū)는 물로 바닥에 쓰는 서예예요.", "Wǒ xǐhuan xiě zì~"]},
+  {room:"up3", x:18.5, y:6.5, name:"영화 팬", skin:"student3", chat:["Wǒ shì yǐngmí! 나는 영화광!", "Wǒ xǐhuan kàn diànyǐng."]},
+  {room:"up4", x:6.5, y:6.5, name:"태극권 사범", skin:"taichi", chat:["태극권은 생활 체조이자 몸과 마음을 수련하는 운동이에요.", "천천히~ 숨을 고르며~"]},
+  {room:"up4", x:8.5, y:6.5, name:"태극권 할아버지", skin:"taichi", chat:["태극권은 생활 체조이자 몸과 마음을 수련하는 운동이에요.", "천천히~ 숨을 고르며~"]},
+  {room:"up4", x:10.5, y:6.5, name:"태극권 할머니", skin:"taichi2", chat:["태극권은 생활 체조이자 몸과 마음을 수련하는 운동이에요.", "천천히~ 숨을 고르며~"]},
+  {room:"up4", x:6.5, y:8.5, name:"태극권 아저씨", skin:"taichi2", chat:["태극권은 생활 체조이자 몸과 마음을 수련하는 운동이에요.", "천천히~ 숨을 고르며~"]},
+  {room:"up4", x:8.5, y:8.5, name:"태극권 학생", skin:"taichi", chat:["태극권은 생활 체조이자 몸과 마음을 수련하는 운동이에요.", "천천히~ 숨을 고르며~"]},
+  {room:"up4", x:10.5, y:8.5, name:"태극권 아주머니", skin:"taichi2", chat:["태극권은 생활 체조이자 몸과 마음을 수련하는 운동이에요.", "천천히~ 숨을 고르며~"]},
+  {room:"up4", x:13.5, y:7.5, name:"태권도 학생", skin:"student1", mode:"kick", chat:["한국에는 태권도(跆拳道 táiquándào)!", "태권도는 올림픽 정식 종목이에요."]},
+  {room:"up4", x:15.5, y:6.5, name:"판다 태극권", skin:"panda2", mode:"taichi", chat:["판다도 태극권~ 🐼", "천천히~ 천천히~"]},
+  {room:"class101", x:4.5, y:6.5, name:"이한나", skin:"hanna", mode:"swing", chat:["Nǐ huì dǎ pīngpāngqiú ma? 탁구 칠 줄 알아?", "Nǐ jiāojiao wǒ ba! 나 좀 가르쳐 줘!"]},
+  {room:"class101", x:6.5, y:6.5, name:"장페이", skin:"zhangpei", mode:"swing", chat:["Huì yìdiǎnr. 조금 칠 줄 알아.", "Méi wèntí. 문제없어!"]},
+  {room:"class101", x:16.5, y:6.5, name:"탁구 선수", skin:"student5", mode:"swing", chat:["Wǒ huì dǎ pīngpāngqiú.", "Tā bú huì dǎ pīngpāngqiú."]},
+  {room:"class101", x:18.5, y:6.5, name:"탁구 선수 2", skin:"student2", mode:"swing", chat:["탁구 랠리~", "Huì yìdiǎnr!"]},
+  {room:"class102", x:11.5, y:10.5, name:"수영 코치", skin:"teacher3", chat:["Nǐ huì yóuyǒng ma? 수영할 줄 알아?", "Wǒ huì yóuyǒng!"]},
+  {room:"class102", x:15.5, y:9.5, name:"수영 선수", skin:"student7", mode:"dance", chat:["yóuyǒng(游泳)은 '수영하다'예요.", "준비 운동 하나 둘~"]},
+  {room:"science", x:4.5, y:7.5, name:"배드민턴 선수", skin:"student3", mode:"swing", chat:["Wǒ xǐhuan dǎ yǔmáoqiú.", "배드민턴도 dǎ!"]},
+  {room:"science", x:9.5, y:7.5, name:"배드민턴 선수 2", skin:"student4", mode:"swing", chat:["yǔmáoqiú(羽毛球)는 배드민턴!", "랠리~"]},
+  {room:"science", x:16.5, y:5.5, name:"야구 선수", skin:"student1", mode:"swing", chat:["bàngqiú(棒球)는 야구예요.", "Wǒ xǐhuan dǎ bàngqiú!"]},
+  {room:"music", x:10.5, y:7.5, name:"경찰관", skin:"police", chat:["Wǒ xiǎng dāng jǐngchá! 나는 경찰이 되고 싶어!", "jǐngchá(警察)는 경찰이에요."]},
+  {room:"music", x:15.5, y:9.5, name:"경찰 꿈나무", skin:"student6", chat:["Nǐ jiānglái xiǎng dāng shénme?", "Wǒ xiǎng dāng jǐngchá."]},
+  {room:"art", x:10.5, y:7.5, name:"의사 선생님", skin:"doctor", chat:["Wǒ xiǎng dāng yīshēng? 의사가 꿈이니?", "yīshēng(医生)은 의사예요."]},
+  {room:"art", x:15.5, y:9.5, name:"간호사", skin:"nurse", chat:["아픈 사람을 돕는 일은 보람 있어요.", "Méi wèntí!"]},
+  {room:"class201", x:10.5, y:8.5, name:"요리사", skin:"chef", chat:["Wǒ shì chúshī. 나는 요리사예요.", "Nǐ huì zuò cài ma? 요리할 줄 알아?"]},
+  {room:"class201", x:16.5, y:8.5, name:"요리 꿈나무", skin:"student5", chat:["Wǒ xiǎng dāng chúshī!", "Nǐ jiāojiao wǒ ba! 가르쳐 주세요!"]},
+  {room:"library", x:10.5, y:8.5, name:"회사원", skin:"office1", chat:["Wǒ shuō Hànyǔ. 저는 중국어를 해요.", "중국어를 하면 할 수 있는 일이 많아요."]},
+  {room:"library", x:16.5, y:6.5, name:"팀장님", skin:"principal", chat:["회의 시작합니다~", "Nǐ huì shuō Hànyǔ ma?"]},
+  {room:"computer", x:11.5, y:2.5, name:"김동민 작가", skin:"dongmin", chat:["Wǒ xiǎng dāng zuòjiā. 그 꿈을 이뤘어요!", "Wǒ xǐhuan kàn shū."]},
+  {room:"computer", x:17.5, y:9.5, name:"독자", skin:"student3", chat:["작가님 사인 받고 싶어요!", "Wǒ xiǎng nǐ. 네가 그리웠어."]},
+  {room:"broadcast", x:11.5, y:9.5, name:"영화광", skin:"student4", chat:["Wǒ shì yǐngmí! 나는 영화광!", "Wǒ xǐhuan kàn diànyǐng."]},
+  {room:"broadcast", x:20.5, y:7.5, name:"판다 관객", skin:"panda3", chat:["팝콘 냠냠~ 🐼🍿", "Kànkan! 좀 봐 봐!"]},
+  {room:"class301", x:9.5, y:3.5, name:"경극 배우", skin:"opera1", chat:["京剧(jīngjù)는 '베이징 오페라'예요.", "노래·대사·동작·무술이 어우러진 예술!"]},
+  {room:"class301", x:13.5, y:3.5, name:"변검 배우", skin:"opera2", chat:["变脸(biànliǎn)! 얼굴에 손을 대지 않고 가면을 바꿔요!", "빨강은 충성, 검정은 정직!"]},
+  {room:"class301", x:16.5, y:9.5, name:"관객", skin:"student2", chat:["Hěn yǒu yìsi! 정말 재미있어!", "皮影戏(píyǐngxì)는 그림자 인형극이에요."]},
+  {room:"class302", x:11.5, y:3.5, name:"가수", skin:"singer", chat:["Wǒ xǐhuan chàng gē! 노래 좋아해!", "Tīngting! 좀 들어 봐!"]},
+  {room:"class302", x:7.5, y:9.5, name:"노래 친구", skin:"student5", mode:"dance", chat:["chàng gē(唱歌)는 노래하다예요.", "Shuōshuo! 어때? 말해 봐!"]},
+  {room:"office", x:8.5, y:6.5, name:"댄서", skin:"dancer2", chat:["Wǒ xǐhuan tiàowǔ! 춤추는 거 좋아해!", "tiàowǔ(跳舞)는 춤추다예요."]},
+  {room:"office", x:11.5, y:6.5, name:"댄서 2", skin:"student1", mode:"dance", chat:["하나 둘 셋 넷!", "Nǐ jiāojiao wǒ ba!"]},
+  {room:"office", x:14.5, y:6.5, name:"판다 댄서", skin:"panda1", mode:"dance", chat:["판다 댄스~ 🐼", "Méi wèntí!"]},
+  {room:"office", x:11.5, y:8.5, name:"댄스 선생님", skin:"teacher2", chat:["Kànkan! 거울을 봐요!", "다 같이 춤춰요!"]},
+  {room:"rooftop", x:4.5, y:6.5, name:"제기 차는 아이", skin:"student6", mode:"kick", chat:["毽子(jiànzi)는 깃털로 된 중국 제기예요.", "하나, 둘, 셋!"]},
+  {room:"rooftop", x:8.5, y:5.5, name:"꿈 응원 판다", skin:"panda2", chat:["梦想成真! 꿈은 이루어진다! 🐼", "Nǐ jiānglái xiǎng dāng shénme?"]},
+  {room:"rooftop", x:9.5, y:6.5, name:"미로 지킴이", skin:"janitor", chat:["미로 끝 화단에 마지막 문제가 있어요.", "울타리는 넘을 수 없어요!"]}
 ];
 
 // ---------- NPC 문제 (설정 탭 'NPC 문제' 가 Y 일 때만) ----------
@@ -466,13 +437,13 @@ function lineWhere(){
     return roomName(s.room) + "에 아직 문제가 남아 있대요.";
   }
   if (useTreasure) {
-    if (!chestOpened) return "광장 개찰구 옆 보물상자가 이제 열릴 것 같던데요? 가 보세요!";
+    if (!chestOpened) return "꿈의 문 옆 꿈 상자가 이제 열릴 것 같던데요? 가 보세요!";
     return group > 1
       ? "쪽지가 조각나 있대요. 친구들 조각까지 모아야 답을 알 수 있어요!"
-      : "상자에서 나온 물음의 답을 개찰구 잠금 장치에 넣으면 돼요!";
+      : "상자에서 나온 물음의 답을 꿈의 문 잠금 장치에 넣으면 돼요!";
   }
   if (found.indexOf(null) >= 0) return "문제는 다 풀렸는데 번호를 다 못 모으셨나 봐요.";
-  return "이제 베이징역 개찰구에서 " + PASS.length + "자리 번호를 넣으면 기차를 탈 수 있어요!";
+  return "이제 꿈의 문에 " + PASS.length + "자리 번호를 넣으면 나갈 수 있어요!";
 }
 // ---------- 여러 개 고르는 문제 도우미 ----------
 function isMulti(q){ return !!(q && q.multi && q.multi.length > 1) }
@@ -587,7 +558,7 @@ function answerOk(q, v){
 function hintFor(q, seq){
   const ans = answerOf(q);
   const wrong = isText(q) ? [] : q.options.filter(function (o, i) { return rightSet(q).indexOf(i) < 0 });
-  const list = ["이 문제는 " + (q.category || "6과") + " 쪽 내용이에요."];
+  const list = ["이 문제는 " + (q.category || "5과") + " 쪽 내용이에요."];
   if (isMulti(q)) list.push("정답이 " + q.multi.length + "개예요. 모두 골라야 해요.");
   if (isText(q) && ans.length) list.push("정답은 " + ans.length + "글자예요.");
   if (wrong.length) list.push("보기 중에 '" + wrong[seq % wrong.length] + "' 은(는) 답이 아니에요.");
@@ -599,7 +570,7 @@ function hintFor(q, seq){
 function wrongHint(q, n){
   const ans = answerOf(q);
   const wrong = isText(q) ? [] : q.options.filter(function (o, i) { return rightSet(q).indexOf(i) < 0 });
-  if (n <= 1) return "이 문제는 " + (q.category || "6과") + " 쪽 내용이에요.";
+  if (n <= 1) return "이 문제는 " + (q.category || "5과") + " 쪽 내용이에요.";
   if (isMulti(q)) {
     if (n === 2) return "정답이 " + q.multi.length + "개예요. 빠짐없이 골라야 해요.";
     if (wrong.length) return "보기 중에 '" + wrong[n % wrong.length] + "' 은(는) 답이 아니에요.";
@@ -629,7 +600,7 @@ function lineHint(n){
   }
   const left = stations.length - solvedQ.size;
   if (left > 0) return "남은 문제가 " + left + "개래요. 힘내세요!";
-  return "고생하셨어요. 베이징역 개찰구 앞에서 봬요.";
+  return "고생하셨어요. 꿈의 문 앞에서 봬요.";
 }
 // 문제에 딸린 NPC 대사 (시트의 NPC대화1~3). 그 문제를 풀고 나면 더 이상 나오지 않습니다.
 function roomQuizLines(){
@@ -1124,7 +1095,7 @@ function askName(){
   started = false;
   StartScreen.open({
     title: GAME_TITLE,
-    subtitle: "베이징 여행 중 길을 잃었어요! 지하철을 타고 곳곳을 다니며 6과 문제를 풀고, 기차를 타고 서울로 돌아가세요.",
+    subtitle: "꿈의 도시에 들어왔어요! 농구장 · 축구장 · 태극권 공원 · 경극 공연장 · 회사 · 병원을 다니며 취미와 꿈에 관한 5과 문제를 풀고 꿈의 문을 여세요.",
     example: DEFAULT_NAME,
     max: 12,
     onAdmin: function (name) {                 // 선생님이 관리자 비밀번호를 넣었을 때
@@ -1153,11 +1124,11 @@ function askName(){
     clearSave();
     mission();
     if (ZOMBIE_ON) setTimeout(function(){
-      notice("🧟 베이징 곳곳에 좀비가 있어요! 가까이 오면 E 로 💉 주사기 공격 (" + ammo + "번). ❤ 회복약 · 💉 주사기를 주우세요.", 6000);
+      notice("🧟 꿈의 도시 곳곳에 좀비가 있어요! 가까이 오면 E 로 💉 주사기 공격 (" + ammo + "번). ❤ 회복약 · 💉 주사기를 주우세요.", 6000);
     }, 3300);
     notice(group > 1
-      ? "📍 톈안먼 광장 — " + p.name + " (" + group + "명 중 " + role + "번 역할) 여행 시작!"
-      : "📍 톈안먼 광장 — " + p.name + " 여행 시작! Nǐ qù nǎr?", 3000);
+      ? "📍 梦想广场 꿈의 광장 — " + p.name + " (" + group + "명 중 " + role + "번 역할) 출발!"
+      : "📍 梦想广场 꿈의 광장 — " + p.name + " 출발! Nǐ xǐhuan zuò shénme?", 3000);
   });
 }
 // 화면 가운데 안내문 (데이터 오류 · 3D 를 켤 수 없음 · 자가진단)
@@ -1218,11 +1189,12 @@ function setRoom(id, x, y){
 }
 const firstTold = {};
 const ROOM_TIP = {
-  hall1:    "🚇 지하철 1호선 东(동쪽)역입니다. 洗手间 · 银行 · 医院 출구가 있고, 오른쪽 끝 계단으로 2호선(南)에 갈아탈 수 있어요.",
-  up2:      "🚇 2호선 南(남쪽)역입니다. 과일 시장 · 버스 정류장 · 식당 출구가 있어요.",
-  up3:      "🚇 3호선 西(서쪽)역입니다. 기차 침대칸 · 공항 · 교통 표지판관 출구가 있어요.",
-  up4:      "🚇 4호선 北(북쪽)역입니다. 자전거 · 말 체험장 · 관광 안내소, 그리고 공원 출구가 있어요.",
-  rooftop:  "🏞 人民公园(공원)입니다. 오른쪽 절반은 울타리 미로예요. 미로를 통과해 끝까지 가면 마지막 문제가 있습니다!"
+  gate:     "🌈 꿈의 광장이에요! 광장무를 추는 사람들과 地书 할아버지가 있어요. 위쪽 체육관으로 들어가면 농구 경기장이에요. 장소는 옆으로(→) 이어집니다.",
+  hall1:    "🏀 농구 경기장이에요. 위쪽 건물에 탁구장 · 수영장 · 배드민턴·야구 연습장이 있어요. 아래쪽은 관중석이에요.",
+  up2:      "⚽ 축구장이에요. 위쪽 건물에 경찰서 · 병원 · 요리 교실이 있어요. 장래 희망 체험!",
+  up3:      "🎬 문화 광장이에요. 회사 사무실 · 작가 북콘서트 · 영화관이 있고, 광장무와 地书를 볼 수 있어요.",
+  up4:      "🥋 태극권 공원이에요. 경극 공연장 · 노래방 · 춤 연습실이 있고, 오른쪽 끝은 꿈 정원이에요.",
+  rooftop:  "🌱 꿈 정원이에요! 언덕 위 정자에 올라가 보세요. 오른쪽 미로 끝에 마지막 문제가 있습니다!"
 };
 
 // ---------- HUD ----------
@@ -1235,15 +1207,15 @@ function mission(){
   if (n < N) {
     t = here.length
       ? "이 방에 떠 있는 📝 시험지로 가서 E를 눌러 문제를 푸세요."
-      : "남은 문제 " + (N - n) + "개를 찾아 베이징 곳곳을 다녀 보세요.";
+      : "남은 문제 " + (N - n) + "개를 찾아 경기장 · 공원 · 건물 안을 다녀 보세요.";
   } else if (useTreasure) {
-    t = !chestOpened ? "문제를 다 풀었습니다! 광장 아래 개찰구 옆 보물상자를 열어 보세요."
-      : passOk ? "마지막 평가만 남았습니다. 베이징역 개찰구에서 E를 누르세요."
-      : "보물상자 속 마지막 문제의 답을 베이징역 개찰구에 입력하세요.";
+    t = !chestOpened ? "문제를 다 풀었습니다! 꿈의 광장 아래 꿈의 문 옆 꿈 상자를 열어 보세요."
+      : passOk ? "마지막 평가만 남았습니다. 꿈의 문에서 E를 누르세요."
+      : "꿈 상자 속 마지막 문제의 답을 꿈의 문에 입력하세요.";
   } else if (found.indexOf(null) >= 0) {
-    t = "문제를 다 풀었습니다. 알아낸 번호로 베이징역 개찰구를 여세요.";
+    t = "문제를 다 풀었습니다. 알아낸 번호로 꿈의 문을 여세요.";
   } else {
-    t = "🎉 비밀번호 " + found.join("") + " 를 알아냈습니다. 톈안먼 광장 아래 베이징역 개찰구로 가세요.";
+    t = "🎉 비밀번호 " + found.join("") + " 를 알아냈습니다. 꿈의 광장 아래 꿈의 문으로 가세요.";
   }
   document.getElementById("mission").textContent = t;
   // 제목줄 한 줄 상태판 : 이름 · 푼 문제 · 비밀번호 · 현재 미션
@@ -1263,7 +1235,7 @@ function mission(){
     add("", "푼 문제", "문제", n + " / " + N);
     if (group > 1) add("", "역할", "역할", role + " / " + group);
     if (useTreasure) {
-      add("", "보물상자", "상자", passOk ? "통과" : chestOpened ? "열림" : n >= N ? "열 수 있음" : "잠김");
+      add("", "꿈 상자", "상자", passOk ? "통과" : chestOpened ? "열림" : n >= N ? "열 수 있음" : "잠김");
     } else {
       add("", "비밀번호", "비번", found.map(v => v === null ? "?" : v).join(" "));
     }
@@ -1280,7 +1252,7 @@ function mission(){
     s.appendChild(bb); cs.appendChild(s);
   };
   chip("푼 문제", n + " / " + N);
-  if (useTreasure) chip("보물상자", passOk ? "통과" : chestOpened ? "열림" : n >= N ? "열 수 있음" : "잠김");
+  if (useTreasure) chip("꿈 상자", passOk ? "통과" : chestOpened ? "열림" : n >= N ? "열 수 있음" : "잠김");
   else chip("비밀번호", found.map(v => v === null ? "?" : v).join(" "));
 }
 function notice(t, ms){
@@ -1320,7 +1292,18 @@ function blocked(x, y){
   if (chestHere() && gx === Math.floor(CHEST.x) && gy === Math.floor(CHEST.y)) return true;
   const c = r.rows[gy][gx];
   if (c === "#") return true;
-  return SOLID.includes(r.obj ? r.obj[c] : undefined);
+  if (SOLID.includes(r.obj ? r.obj[c] : undefined)) return true;
+  // ⛰ 입체 맵 : 지금 선 칸과 두 단 이상 높이가 다르면 축대(절벽)라서 못 갑니다 (한 단은 계단)
+  if (r.lift) {
+    const here = liftOf(r, Math.floor(p.x), Math.floor(p.y));
+    if (Math.abs(liftOf(r, gx, gy) - here) > 1) return true;
+  }
+  return false;
+}
+function liftOf(r, gx, gy){
+  const row = r && r.lift && r.lift[gy];
+  const v = row ? parseInt(row.charAt(gx), 10) : 0;
+  return v > 0 ? v : 0;
 }
 // 3D 캐릭터는 몸통이 있으니, 가운데 한 점이 아니라 발밑 네모(가로 0.44칸)로 부딪힘을 봅니다.
 // 미로 길과 문은 한 칸 폭이라 충분히 지나갈 수 있습니다.
@@ -1371,7 +1354,7 @@ function nearNpc(){
   return npcs.filter(v => v.room === room).map(n => ({ n: n, r: dist(n.x, n.y) }))
     .filter(v => v.r < 1.6).sort((a, b) => a.r - b.r)[0];
 }
-// ---------- 보물상자 ----------
+// ---------- 꿈 상자 ----------
 function chestHere(){ return useTreasure && CHEST.room === room }
 function nearChest(){
   if (!chestHere()) return undefined;
@@ -1382,9 +1365,9 @@ function chestReady(){ return solvedQ.size >= stations.length }
 function openChest(){
   const N = stations.length;
   if (!chestReady()) {
-    showDialog("🔒 보물상자가 잠겨 있다",
+    showDialog("🔒 꿈 상자가 잠겨 있다",
       "묵직한 자물쇠에 숫자판이 붙어 있습니다. 지금은 " + solvedQ.size + " / " + N + ".\n" +
-      "베이징 곳곳의 문제를 모두 풀면 저절로 열린다고 합니다.");
+      "꿈의 도시 곳곳의 문제를 모두 풀면 저절로 열린다고 합니다.");
     return;
   }
   const first = !chestOpened;
@@ -1393,18 +1376,18 @@ function openChest(){
   const note = String(TRE.note || "").trim();
 
   if (group <= 1) {                       // 혼자 하기 : 문제 전체가 보입니다
-    showDialog(first ? "🎁 보물상자가 열렸다!" : "📜 상자 속 쪽지",
+    showDialog(first ? "🎁 꿈 상자가 열렸다!" : "📜 상자 속 쪽지",
       (first ? "상자 안에는 보물 대신 낡은 쪽지 한 장이 들어 있습니다.\n\n"
              : "쪽지를 다시 펼쳐 봅니다.\n\n") +
       "❓ " + String(TRE.question || "").trim() + "\n\n" +
       (note ? note + "\n\n" : "") +
-      "이 물음의 답이 베이징역 개찰구 비밀번호입니다.\n개찰구 앞에서 E를 눌러 입력하세요.");
+      "이 물음의 답이 꿈의 문 비밀번호입니다.\n꿈의 문 앞에서 E를 눌러 입력하세요.");
     return;
   }
 
   const split = chestSplit();             // 함께하기 : 내 조각만 보입니다
   const mine = myPieceText();
-  showDialog((first ? "🎁 보물상자가 열렸다! — " : "📜 내 쪽지 조각 — ") + role + "번 역할",
+  showDialog((first ? "🎁 꿈 상자가 열렸다! — " : "📜 내 쪽지 조각 — ") + role + "번 역할",
     (first ? "상자 안에 쪽지가 조각조각 찢어져 있습니다.\n" : "") +
     "내 몫으로 보이는 조각은 이것뿐입니다.\n\n" +
     (mine ? "❝ " + mine + " ❞" : "(이 역할에는 조각이 없습니다)") + "\n\n" +
@@ -1413,7 +1396,7 @@ function openChest(){
       ? "친구들의 조각을 번호 순서대로 이어 붙이면 마지막 문제가 됩니다.\n"
       : "친구들의 조각을 번호 순서대로 띄어쓰기 없이 이어 붙이면 마지막 문제가 됩니다.\n") +
     (note ? note + "\n" : "") +
-    "그 답이 베이징역 개찰구 비밀번호입니다.");
+    "그 답이 꿈의 문 비밀번호입니다.");
 }
 function nearAny(){
   // 문제 동그라미 위(또는 바로 옆)에 서 있으면, 옆에 NPC · 문 · 상자가 더 가까이 있어도 문제를 먼저 엽니다
@@ -1459,15 +1442,15 @@ function interact(){
   const d = t.d;
   if (d.exit) {
     if (solvedQ.size < stations.length) {
-      notice("문제를 모두 풀어야 개찰구가 열립니다. (" + solvedQ.size + "/" + stations.length + ")");
+      notice("문제를 모두 풀어야 꿈의 문이 열립니다. (" + solvedQ.size + "/" + stations.length + ")");
       return;
     }
     if (passOk) { openExam(); return }   // 비밀번호는 통과했으니 바로 평가로
-    // 보물상자를 지나쳐 바로 교문으로 온 경우
+    // 꿈 상자를 지나쳐 바로 교문으로 온 경우
     if (useTreasure && !chestOpened) {
-      showDialog("🔒 개찰구가 잠겨 있다",
+      showDialog("🔒 꿈의 문이 잠겨 있다",
         "잠금 장치에 비밀번호를 넣어야 열립니다.\n\n" +
-        "개찰구 바로 옆에 보물상자가 놓여 있습니다.\n" +
+        "꿈의 문 바로 옆에 꿈 상자가 놓여 있습니다.\n" +
         (group > 1
           ? "먼저 상자를 열어 내 쪽지 조각을 확인하고, 친구들의 조각과 합쳐 답을 알아내세요."
           : "먼저 상자를 열어 마지막 문제를 풀고, 그 답을 비밀번호로 입력하세요."));
@@ -1625,7 +1608,7 @@ function feedback(st){
   if (di !== undefined) {
     h += '<div class="digit">🔑 비밀번호 <b>' + (di + 1) + '번째</b> 글자는 <b>' + PASS[di] + '</b> 입니다.</div>';
   } else if (useTreasure && solvedQ.size >= stations.length) {
-    h += '<div class="digit">🎁 문제를 모두 풀었습니다! 광장 개찰구 옆 <b>보물상자</b>가 열립니다.</div>';
+    h += '<div class="digit">🎁 문제를 모두 풀었습니다! 꿈의 문 옆 <b>꿈 상자</b>가 열립니다.</div>';
   } else if (useHints && HINTS.length) {
     h += '<div class="hint">💡 ' + esc(HINTS[st.i % HINTS.length]) + '</div>';
   } else {
@@ -1656,8 +1639,8 @@ function wrongAnswer(st){
   const stay = !!st.maze;   // 미로 끝 문제는 그 자리에서 다시 풀 수 있게 합니다
   let h = '<div class="no2">' + (stay ? '아쉬워요. 다시 한 번 생각해 보세요!' : '아쉬워요. 마법에 걸렸습니다!') + '</div>';
   h += '<div class="magic">' + (stay
-      ? '🌿 <b>미로 끝 문제는 광장으로 돌아가지 않습니다.</b><br>여기서 <b>E</b> 를 눌러 바로 다시 풀 수 있어요.'
-      : '✨ <b>톈안먼 광장으로 돌아가게 됩니다.</b>');
+      ? '🌿 <b>미로 끝 문제는 꿈의 광장으로 돌아가지 않습니다.</b><br>여기서 <b>E</b> 를 눌러 바로 다시 풀 수 있어요.'
+      : '✨ <b>꿈의 광장으로 돌아가게 됩니다.</b>');
   if (lost.length) {
     h += '<br>그리고 이미 푼 문제 <b>' + lost.length + '개</b>가 다시 풀어야 할 문제로 바뀌었어요.<br>· ' +
          lost.map(esc).join('<br>· ');
@@ -1667,7 +1650,7 @@ function wrongAnswer(st){
        esc(wrongHint(st.q, tries[st.i])) + '</div>';
   document.getElementById("quizFeed").innerHTML = h;
   const ok = document.getElementById("quizOk");
-  ok.textContent = stay ? "확인 — 여기서 다시 풀기" : "확인 — 광장으로 돌아가기";
+  ok.textContent = stay ? "확인 — 여기서 다시 풀기" : "확인 — 꿈의 광장으로 돌아가기";
   ok.style.display = "block";
   pendingWarp = !stay;
   mission(); saveState();
@@ -1900,7 +1883,7 @@ function finish(){                       // 비밀번호를 맞혔을 때
   passOk = true;
   saveState();
   showDialog("🎉 비밀번호가 맞았습니다!",
-    "축하합니다! 비밀번호 " + PASS.split("/")[0] + " 로 베이징역 개찰구가 열렸습니다.\n" +
+    "축하합니다! 비밀번호 " + PASS.split("/")[0] + " 로 꿈의 문이 열렸습니다! 🌈\n" +
     "마지막으로 지금까지 푼 문제를 평가합니다.", openExam);
 }
 // ---------- 탈출 성공 : 표창장 화면 + 불꽃놀이 ----------
@@ -2171,8 +2154,8 @@ function stepWarp(dt){
     if (warpK >= 1) {
       warpK = 1; warpDir = -1;
       setRoom("gate");
-      notice(warpWhy === "zombie" ? "🧟 좀비에게 당해 광장으로 돌아왔습니다. 라이프가 다시 가득 찼어요! (푼 문제는 그대로)"
-                                  : "✨ 마법이 걸려 톈안먼 광장으로 돌아왔습니다!", warpWhy === "zombie" ? 4000 : 1800);
+      notice(warpWhy === "zombie" ? "🧟 좀비에게 당해 꿈의 광장으로 돌아왔습니다. 라이프가 다시 가득 찼어요! (푼 문제는 그대로)"
+                                  : "✨ 마법이 걸려 꿈의 광장으로 돌아왔습니다!", warpWhy === "zombie" ? 4000 : 1800);
     }
   } else {
     warpK -= dt / 0.7;
@@ -2189,10 +2172,10 @@ function drawWarp(e){
   if (el._back !== back || el._why !== warpWhy) {
     el._back = back; el._why = warpWhy;
     el.classList.toggle("zombie", zb);
-    el.querySelector("b").textContent = zb ? (back ? "🚄 광장에서 다시 깨어났습니다" : "🧟 좀비에게 당했습니다")
-                                           : (back ? "✨ 톈안먼 광장에 도착했습니다" : "✨ 마법에 걸렸습니다");
-    el.querySelector("small").textContent = zb ? (back ? "라이프 회복! 푼 문제는 그대로예요" : "광장으로 돌아갑니다")
-                                               : (back ? "다시 문제를 찾아 출발하세요" : "광장으로 돌아갑니다");
+    el.querySelector("b").textContent = zb ? (back ? "🌈 꿈의 광장에서 다시 깨어났습니다" : "🧟 좀비에게 당했습니다")
+                                           : (back ? "✨ 꿈의 광장에 도착했습니다" : "✨ 마법에 걸렸습니다");
+    el.querySelector("small").textContent = zb ? (back ? "라이프 회복! 푼 문제는 그대로예요" : "꿈의 광장으로 돌아갑니다")
+                                               : (back ? "다시 문제를 찾아 출발하세요" : "꿈의 광장으로 돌아갑니다");
   }
   el.querySelector(".wt").style.opacity = Math.min(1, Math.max(0, (e - 0.25) / 0.45)).toFixed(2);
 }
@@ -2237,13 +2220,13 @@ function update(dt){
 function promptText(t){
   return t.s ? (solvedQ.has(t.s.i) ? "E : 다시 보기" : "E : 문제 풀기")
     : t.n ? (npcTalking(t.n) ? "" : "E : 말 걸기")
-    : t.c ? (!chestReady() ? "🔒 보물상자 잠김 (" + solvedQ.size + "/" + stations.length + ")"
-        : chestOpened ? "E : 쪽지 다시 보기" : "E : 보물상자 열기")
-    : t.d.exit ? (solvedQ.size < stations.length ? "🔒 개찰구 잠김 (" + solvedQ.size + "/" + stations.length + ")"
+    : t.c ? (!chestReady() ? "🔒 꿈 상자 잠김 (" + solvedQ.size + "/" + stations.length + ")"
+        : chestOpened ? "E : 쪽지 다시 보기" : "E : 꿈 상자 열기")
+    : t.d.exit ? (solvedQ.size < stations.length ? "🔒 꿈의 문 잠김 (" + solvedQ.size + "/" + stations.length + ")"
         : passOk ? "E : 마지막 평가"
-        : (useTreasure && !chestOpened) ? "E : 개찰구 (보물상자 먼저)"
+        : (useTreasure && !chestOpened) ? "E : 꿈의 문 (꿈 상자 먼저)"
         : "E : 비밀번호 입력")
-    : t.d.to === "gate" ? "E : 광장으로 나가기"
+    : t.d.to === "gate" ? "E : 꿈의 광장으로 나가기"
     : "E : " + (t.d.label || "이동");
 }
 // 문 타일 고르기: 안 가본 곳 / 가본 곳 / 문제를 다 푼 곳
@@ -2343,12 +2326,12 @@ function draw3d(){
   npcs.forEach(function (n, i){
     if (n.room !== room) return;
     World3D.anim(World3D.char("npc" + i, n.skin), n.x, n.y, dt,
-      { dir: n.dir || 0, talk: !!talking[n.name] });
+      { dir: n.dir || 0, talk: !!talking[n.name], mode: n.mode });   // 🎬 태극권 · 광장무 · 농구 · 축구 · 탁구 · 경극 · 노래
   });
   // --- 문제 자리 : 바닥의 빛나는 동그라미 ---
   const here = stations.filter(s => s.room === room && shownSt(s));
   for (const s of here) { const f = frontSpot(s); World3D.ring("s" + s.i, f.x, f.y, solvedQ.has(s.i) ? "done" : "quiz") }
-  // --- 보물상자 ---
+  // --- 꿈 상자 ---
   if (chestHere()) World3D.chest(CHEST.x, CHEST.y, chestReady(), chestOpened);
   // --- 교문 : 문제를 다 풀면 불이 켜집니다 ---
   const allDone = solvedQ.size === stations.length;
@@ -2717,7 +2700,7 @@ document.getElementById("reviewBtn").onclick = openReview;
 document.getElementById("winReview").onclick = openReview;
 document.getElementById("winRestart").onclick = function(){
   askDialog("🔄 처음부터 다시 시작",
-    "표창장 화면을 닫고 톈안먼 광장에서 처음부터 다시 시작합니다.\n지금까지 푼 기록은 사라집니다.",
+    "표창장 화면을 닫고 꿈의 광장에서 처음부터 다시 시작합니다.\n지금까지 푼 기록은 사라집니다.",
     "네, 처음부터", restartGame);
 };
 document.getElementById("reviewOk").onclick = function(){ closeModal("review") };
@@ -2748,7 +2731,7 @@ document.getElementById("resetBtn").onclick = function(){
   const got = found.filter(function (v){ return v !== null }).length;
   let txt = n > 0
     ? "지금까지 푼 문제 " + n + "개" + (got ? "와 알아낸 비밀번호 " + got + "글자" : "") +
-      "가 모두 사라지고, 톈안먼 광장에서 다시 시작합니다."
+      "가 모두 사라지고, 꿈의 광장에서 다시 시작합니다."
     : "아직 푼 문제가 없습니다. 처음부터 다시 시작할까요?";
   if (n > 0) txt += "\n정말 처음부터 다시 시작할까요?";
   askDialog("🔄 처음부터 다시 시작", txt, "네, 처음부터", restartGame);

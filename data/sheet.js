@@ -8,7 +8,7 @@
 (function () {
   "use strict";
 
-  var VER      = "67";   // game.js 를 불러올 때 붙는 번호 (index.html 의 v=60 와 맞추세요 · 고칠 때마다 함께 올립니다)
+  var VER      = "70";   // game.js 를 불러올 때 붙는 번호 (index.html 의 v=60 와 맞추세요 · 고칠 때마다 함께 올립니다)
   var C        = window.SHEET_CONFIG || {};
   var BACKUP   = (window.QUIZ || []).slice();      // quiz.js 에 적어 둔 예비 문제
   var MAX      = 20;                               // 게임이 놓을 수 있는 최대 문제 수
@@ -347,16 +347,17 @@
   var ID = IDS[0] || sheetId(C.url);
 
   // 시도할 순서 : (주소의 gid 탭 → 시트 이름 → 첫 번째 탭) → 기본 시트도 같은 순서로
-  function planFor(id, name, gid){
+  function planFor(id, name, gid, strictGid){
     var a = [];
     if (!id || id === "PUBLISHED") return a;
-    if (gid)  a.push({ id: id, gid: gid });
+    if (gid)  a.push({ id: id, gid: gid, strictOnly: !!strictGid });   // 설정의 gid 탭은 '문제 시트처럼 생겼을 때만' 씁니다
     if (name) a.push({ id: id, sheet: name });
-    a.push({ id: id });
+    if (C.firstTabFallback !== false) a.push({ id: id, strictOnly: true });   // 맨 앞 탭은 문제 시트 모양일 때만 (false 면 아예 안 읽음)
     return a;
   }
   var PLAN = [];
-  IDS.forEach(function (one){ PLAN = PLAN.concat(planFor(one, NAME, ADDR.gid)) });
+  var CFG_GID = FROM_ADDR ? "" : String(C.sheetGid || "").trim();
+  IDS.forEach(function (one){ PLAN = PLAN.concat(planFor(one, NAME, ADDR.gid || CFG_GID, !ADDR.gid && !!CFG_GID)) });
   if (FROM_ADDR && DEF_ID && IDS.indexOf(DEF_ID) < 0) {
     PLAN = PLAN.concat(planFor(DEF_ID, String(C.sheet || "").trim(), ""));
   }
@@ -435,9 +436,15 @@
   // ① 원본 CSV → ② gviz CSV → ③ JSONP 순서로 시도합니다
   function ask(){
     var way = PLAN[step] || {};
-    if (typeof fetch !== "function") { askJson(way); return }
-    tryCsv(exportUrl(way), true, "원본 CSV", 6000, finishLoad, function () {
-      tryCsv(base(way) + "tqx=out:csv" + tail(way), false, "CSV", 7000, finishLoad, function (httpFail) {
+    if (!way.id) { useBackup("문제 탭을 찾지 못함"); return }
+    if (typeof fetch !== "function") { if (way.strictOnly && nextWay("gid 탭 건너뜀")) return; askJson(way); return }
+    // 이름으로 고른 탭은 '원본 내려받기'로 고를 수 없어서(맨 앞 탭이 옴) 건너뜁니다
+    var first = (way.sheet && !way.gid)
+      ? function (ok, fail){ fail() }
+      : function (ok, fail){ tryCsv(exportUrl(way), true, "원본 CSV", 6000, ok, fail) };
+    first(finishLoad, function () {
+      tryCsv(base(way) + "tqx=out:csv" + tail(way), !!way.strictOnly, "CSV", 7000, finishLoad, function (httpFail) {
+        if (way.strictOnly) { if (nextWay("gid 탭이 문제 시트가 아님")) return; useBackup("문제 탭을 찾지 못함"); return }
         if (httpFail) {                                  // 그런 문서·탭이 없음 → 다음 후보로
           say("시트를 찾지 못했습니다(" + httpFail + "). 다음 후보로 넘어갑니다.");
           if (nextWay("문서를 찾지 못함")) return;
@@ -585,8 +592,19 @@
   //  ① CSV(fetch) 로 읽고 → 막히거나 비어 있으면 ② JSONP(script) 로 한 번 더 읽습니다.
   //     (학교 망 · 파일로 열기처럼 fetch 가 막히는 곳에서도 '모둠 활동' 같은 설정이 빠지지 않게)
   var SET_STATE = "";       // "ok" · "empty" · "fail" (화면 안내에 씁니다)
+  // 설정 탭 이름을 "8과설정/설정" 처럼 / 로 여러 개 적으면 앞에서부터 차례로 찾아봅니다
   function loadSettings(id, after){
-    var name = String(C.settingSheet === undefined ? "설정" : C.settingSheet).trim();
+    var names = String(C.settingSheet === undefined ? "설정" : C.settingSheet).split("/")
+      .map(function (v){ return v.trim() }).filter(Boolean);
+    if (!names.length) { after(0); return }
+    (function next(i){
+      loadSettingsOne(id, names[i], function (n){
+        if (n || i + 1 >= names.length) after(n); else next(i + 1);
+      });
+    })(0);
+  }
+  function loadSettingsOne(id, name, after){
+    name = String(name || "").trim();
     if (!id || !name) { after(0); return }
     var root = "https://docs.google.com/spreadsheets/d/" + id + "/gviz/tq?";
     var done = false, triedJson = false;

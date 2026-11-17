@@ -1,10 +1,10 @@
-// 🚄 你去哪儿? 베이징 탈출 - 가까이 가면 반응하는 물건 (재미용 · FXKIT 사용)
+// 🏀 你喜欢做什么? 꿈과 취미 탈출 - 가까이 가면 반응하는 물건 (재미용 · FXKIT 사용)
 (function () {
   if (!window.FXKIT) return;
   var DESK = ["책상 위 낙서: '시험 망함 ㅠㅠ'", "지우개 가루가 수북~", "책상 서랍에서 사탕 발견! 🍬", "누가 짝꿍 자리에 쪽지를…? 💌"];
   var CHALK = ["칠판에 '떠든 사람: 없음' 😂", "분필 소리 끼익~ 으아!", "칠판 구석에 하트 낙서 ❤️"];
   var T = {
-    board:         { s: "page", e: "📋:pop", t: ["안내판: Nǐ qù nǎr? 어디 가세요? 🗺️", "菜单: 짜장면 · 만두 · 탕후루 🥟", "안내: qí mǎ! 말은 qí 로 타요 🐴"] },
+    board:         { s: "page", e: "📋:pop", t: ["응원판: 梦想成真! 꿈은 이루어진다 🌈", "Wǒ xiǎng dāng zuòjiā! ✍️", "오늘의 경기: 篮球 · 足球 🏀⚽"] },
     tree:          { p: 0.4, typeCool: 10, s: "sparrow", e: "🐦:fly", t: "참새가 짹짹~" },
     standpodium_l: { s: "whistle", t: "구령대: 차렷! 열중쉬어!" },
     standpodium_r: { s: "whistle", t: "구령대: 차렷! 열중쉬어!" },
@@ -13,7 +13,7 @@
     sink:          { p: 0.6, s: "splash", e: "💧:bounce:3:20", t: "손을 깨끗이 씻어요~ 🧼" },
     safe:          { s: "knock", e: "💰:pop", t: "银行 금고! 함부로 열 수 없어요 🔒" },
     atm:           { s: "beep", e: "💴:fly", t: "ATM: 人民币(런민비) 인출 중~" },
-    kiosk:         { s: "beep", e: "🚲:pop", t: "Qí zìxíngchē! 자전거 대여 완료 🚲" },
+    kiosk:         { s: "beep", e: "🧋:pop", t: "珍珠奶茶 주문 완료! 🧋" },
     ticketmachine: { p: 0.6, s: "beep", e: "🎫:fly", t: "地铁 표 나왔어요! Wǒ zuò dìtiě qù 🚇" },
     hbed:          { p: 0.5, e: "💤:rise", t: "yīyuàn 医院 = 병원. 푹 쉬세요~" },
     redcross:      { p: 0.6, t: "구급차는 120! 🚑" },
@@ -40,7 +40,66 @@
     brochure:      { s: "page", e: "📖:pop", t: "여행 책자: 베이징 볼거리 · 먹을거리 📖" },
     pond:          { p: 0.4, typeCool: 8, s: "splash", e: "🦆:bounce", t: ["꽥꽥~ 오리가 헤엄쳐요 🦆", "물고기가 뻐끔뻐끔 🐟"] },
     pavilion:      { s: "chime", t: "공원 정자에서 잠깐 쉬어 가요 🏯" },
-    exitgate:      { s: "beep", t: "北京站 개찰구: 기차표를 찍어 주세요 🎫" },
+    exitgate:      { s: "chime", e: "🌈:pop", t: "梦想之门 꿈의 문: 문제를 다 풀어야 열려요 🌈" },
+    // ----- 5과 운동 · 취미 · 직업 물건 -----
+    hoop:          { s: "pop", e: "🏀:bounce:3:22", t: ["슛~ 골인! 🏀", "dǎ lánqiú — 농구하다"] },
+    bleacher:      { r: 1.2, p: 0.4, typeCool: 6, cool: 30, s: "fanfare", e: "📣:pop", t: ["와~ 加油(jiāyóu)! 힘내라!", "Wǒ shì qiúmí! 나는 팬이야!"] },
+    goal:          { s: "whistle", e: "⚽:bounce:3:22", t: "골~인! tī zúqiú ⚽" },
+    sball:         { s: "pop", e: "⚽:bounce", t: "뻥! 축구공은 tī(踢)!" },
+    ballcart:      { s: "pop", e: "🏀:bounce", t: "공이 가득~ 같이 운동하자!" },
+    pptable:       { r: 1.0, p: 0.5, typeCool: 6, cool: 30, s: "click", e: "🏓:bounce", t: ["똑딱똑딱~ dǎ pīngpāngqiú 🏓", "Nǐ huì dǎ pīngpāngqiú ma?"] },
+    pool:          { r: 1.0, p: 0.4, typeCool: 6, cool: 30, s: "splash", e: "🏊:bounce", t: ["첨벙~ yóuyǒng 🏊", "Nǐ huì yóuyǒng ma?"] },
+    bnet:          { s: "click", e: "🏸:fly", t: "dǎ yǔmáoqiú — 배드민턴 🏸" },
+    batcage:       { s: "knock", e: "⚾:fly", t: "딱! dǎ bàngqiú — 야구 ⚾" },
+    policecar:     { s: "beep", e: "🚓:pop", t: "Wǒ xiǎng dāng jǐngchá! 🚓" },
+    moviescreen:   { s: "chime", e: "🎬:pop", t: "kàn diànyǐng — 영화 보기 🎬" },
+    curtain:       { s: "fanfare", e: "🎭:pop", t: "막이 오릅니다! 京剧 공연 🎭" },
+    masks:         { s: "chime", e: "🎭:pop", t: ["빨강 = 충성 · 용맹", "검정 = 정직 · 지혜", "变脸! 가면이 휙휙~"] },
+    piying:        { s: "chime", e: "🕯️:pop", t: "皮影戏 그림자 인형극 🕯️" },
+    speaker:       { p: 0.5, s: "piano", e: "🎵:rise:3:22", t: ["둠칫둠칫~ 🎵", "Tīngting! 좀 들어 봐!"] },
+    mirror:        { s: "chime", e: "💃:pop", t: "tiàowǔ — 거울 보며 춤 연습 💃" },
+    dishu:         { r: 0.8, p: 0.3, typeCool: 10, s: "page", e: "🖌️:pop", t: "地书 — 물로 쓴 바닥 글씨 🖌️" },
+    trophy1:       { s: "fanfare", e: "🏆:pop", t: "우승 트로피! 加油! 🏆" },
+    // ----- 8과 송나라 시장 물건 -----
+    flag:          { p: 0.4, typeCool: 10, s: "whoosh", e: "🎏:fly", t: ["펄럭펄럭~ 가게 깃발", "酒旗: 맛있는 술집 여기 있소!"] },
+    ustall:        { r: 1.0, p: 0.4, typeCool: 6, cool: 30, s: "ding", e: "🪙:pop", t: ["Duōshao qián? 얼마예요?", "Piányi yìdiǎnr ba! 좀 싸게요!", "买一送一! 하나 사면 하나 더!"] },
+    cart:          { p: 0.5, s: "knock", e: "📦:bounce", t: "덜컹덜컹~ 짐 수레" },
+    donkey:        { s: "pop", e: "🫏:bounce", t: "히잉~ 짐 실은 당나귀" },
+    camel:         { s: "pop", e: "🐫:bounce", t: "서역에서 온 낙타 상인! 🐫" },
+    boat:          { p: 0.5, s: "splash", e: "⛵:fly", t: "운하 위 나룻배 ⛵" },
+    scalestall:    { s: "tick", e: "🍎:bounce", t: "Yì jīn píngguǒ! 사과 한 근 ⚖️" },
+    clothrack:     { p: 0.6, s: "page", e: "👘:pop", t: ["Yí jiàn qípáo! 치파오 한 벌", "Yǒu hóngsè de ma? 빨간색 있어요?"] },
+    mannequin:     { s: "chime", e: "✨:pop", t: "Nín kàn, zhè jiàn zěnmeyàng? 이 옷 어때요?" },
+    shoeshelf:     { s: "knock", e: "👟:pop", t: "Zhè shuāng xié duōshao qián? 👟" },
+    dyevat:        { s: "bubble", e: "🎨:rise:3:20", t: ["hóngsè 빨강 · huángsè 노랑", "lǜsè 초록 · lánsè 파랑", "báisè 하양 · hēisè 검정"] },
+    redpaper:      { s: "page", e: "🧧:pop", t: "剪纸 jiǎnzhǐ — 빨간색은 행운의 색! 🧧" },
+    moneycounter:  { s: "ding", e: "🪙:bounce:3:20", t: ["1元 = 10角 = 100分 🪙", "말할 땐 kuài, 쓸 땐 yuán!"] },
+    qrstand:       { s: "beep", e: "📱:pop", t: "Qǐng sǎo yíxià! 미래에서 온 QR 결제?! 📱" },
+    archway:       { p: 0.3, typeCool: 10, s: "chime", t: "다음 시장 거리로 이어지는 문" },
+    // ----- 7과 먹거리 물건 -----
+    soypot:        { s: "bubble", e: "🥛:rise:3:20", t: "보글보글 豆浆 dòujiāng (콩국)~" },
+    wontonpot:     { s: "bubble", e: "🥟:rise:3:20", t: "후루룩 馄饨 húntun (만둣국)!" },
+    frywok:        { s: "bubble", e: "🥖:rise:3:20", t: "지글지글 油条 yóutiáo 튀기는 중!" },
+    ytbasket:      { p: 0.6, s: "pop", e: "🥖:bounce", t: "바삭바삭 중국식 꽈배기 油条" },
+    jbcart:        { s: "click", e: "🥞:pop", t: "煎饼 jiānbing 한 장 부쳐 드릴게요!" },
+    grill:         { s: "bubble", e: "🍢:rise:3:20", t: ["串儿 chuànr 냄새 최고! 🍢", "Yǒudiǎnr là! 조금 매워요 🌶️"] },
+    snackshelf:    { p: 0.6, s: "page", e: "🍿:bounce", t: ["瓜子 guāzǐ 까 먹을까? 🌻", "辣条 làtiáo 쫀득쫀득! 🌶️"] },
+    fridge:        { s: "beep", e: "🥤:pop", t: "可乐 kělè 시원~ 🥤" },
+    tastebar:      { s: "pop", e: "😝:pop", t: ["suān 시다! 🍋", "tián 달다! 🍫", "kǔ 쓰다! 💊", "xián 짜다! 🧂"] },
+    icecream:      { s: "chime", e: "🍦:rise", t: "冰淇淋 bīngqílín 하나 주세요! 🍦" },
+    bigcup:        { s: "bubble", e: "🧋:rise:3:22", t: "珍珠奶茶 zhēnzhū nǎichá 쪽~ 🧋" },
+    bigbowl:       { s: "bubble", e: "🍜:rise:3:22", t: "Nǐ chī fàn le ma? 왕 국수 그릇! 🍜" },
+    foodtable:     { r: 1.0, p: 0.4, typeCool: 6, cool: 30, s: "click", e: "🥢:pop", t: ["Hěn hǎochī! 🥢", "Wǒ chī le! 다 먹었어요~"] },
+    malatable:     { r: 1.0, p: 0.4, typeCool: 6, cool: 30, s: "bubble", e: "🌶️:rise", t: ["Yǒudiǎnr là! 🌶️", "Wǒ ài chī là de! 🔥"] },
+    ingredshelf:   { s: "beep", e: "🥬:pop", t: "마라탕 재료 골라 담기! 🥬🍄" },
+    steamer:       { s: "bubble", e: "🥟:rise:3:20", t: "包子 bāozi 김이 모락모락~ 🥟" },
+    teatable:      { p: 0.6, s: "bubble", e: "🍵:rise", t: "hē wūlóngchá — 우롱차 한 잔 🍵" },
+    teashelf:      { s: "page", e: "🍃:fly", t: "乌龙茶 찻잎 향기~ 🍃" },
+    bamboo:        { p: 0.4, typeCool: 10, s: "sparrow", e: "🎋:fly", t: "판다 간식 대나무 🎋" },
+    pandarest:     { s: "pop", e: "🐼:bounce:3:22", t: ["냠냠~ 대나무 최고! 🐼🎋", "Nǐ kànguo xióngmāo ma? 🐼", "데굴데굴~ 🐼"] },
+    bed:           { p: 0.5, e: "💤:rise", t: "Hái méi chī, wǒ hěn è… 배고파 💤" },
+    deliverybox:   { s: "ding", e: "🍔:pop", t: "外卖 도착! 汉堡包 hànbǎobāo 🍔" },
+    scooter:       { s: "beep", e: "🛵:fly", t: "外卖 배달 출발~ 🛵" },
     desk:          { r: 1.0, p: 0.3, typeCool: 6, cool: 30, s: "click", t: DESK },
     board_l:       { p: 0.6, s: "click", t: CHALK },
     board_m:       { p: 0.6, s: "click", t: CHALK },
@@ -55,13 +114,13 @@
     musicstand:    { s: "piano", e: "🎵:rise:3:22", t: "도레미파솔~" },
     piano_l:       { s: "piano", e: "🎶:rise:3:22", t: "띵동띵동~ 피아노 연주!" },
     piano_r:       { s: "piano", e: "🎶:rise:3:22", t: "띵동띵동~ 피아노 연주!" },
-    easel:         { e: "🎨:pop", t: "그림 속 사과가 진짜 같다!" },
+    easel:         { e: "🎨:pop", t: "menu: 麻辣烫 málàtàng 🌶️ Yǒudiǎnr là!" },
     artshelf:      { e: "⛑️:bounce:3:22", t: "자전거 헬멧 꼭 쓰기! ⛑️" },
     bookshelf:     { p: 0.6, s: "page", e: "📚:bounce", t: "재미있는 책 발견! 빌려 갈까?" },
     counter_l:     { s: "ding", t: ["창구: 번호표를 뽑아 주세요 🎫", "Qǐngwèn! 실례합니다~"] },
     counter_r:     { s: "ding", t: ["창구: 번호표를 뽑아 주세요 🎫", "Qǐngwèn! 실례합니다~"] },
     readingdesk:   { p: 0.6, s: "page", t: "기차 창밖 풍경이 휙휙~ 🚄" },
-    computer:      { p: 0.6, s: "click", t: "탑승 수속 중… 首尔행 비행기 ✈️" },
+    computer:      { p: 0.6, s: "click", t: "Nà wǒmen jiào wàimài ba! 배달 주문 중… 🍔" },
     servercab:     { p: 0.6, s: "hum", t: "웅웅~ 학교 서버" },
     mixer_l:       { s: "beep", t: "아아~ 마이크 테스트! 방송부입니다" },
     mixer_r:       { s: "beep", t: "아아~ 마이크 테스트! 방송부입니다" },
@@ -85,6 +144,6 @@
   };
   window.GAME_REACT = FXKIT.define(T);
   FXKIT.ambient({
-    "*": function (K, p) { K.play("bell"); K.bubble(K.pick(["📢 地铁 안내: 다음 역은 톈안먼동역입니다.", "📢 안내: 北京站에서 首尔행 기차가 곧 출발합니다!", "📢 길을 잃으면 Qǐngwèn! 하고 물어보세요~"]), p.x + 1.5, p.y - 1, 1.7, 3000) }
+    "*": function (K, p) { K.play("bell"); K.bubble(K.pick(["📢 잠시 후 농구 결승전이 시작됩니다! 🏀", "📢 Nǐ xǐhuan zuò shénme? 취미를 찾아보세요!", "📢 경극 공연장에서 变脸 공연이 열립니다 🎭"]), p.x + 1.5, p.y - 1, 1.7, 3000) }
   }, 45, 80);
 })();
