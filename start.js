@@ -67,8 +67,8 @@ window.StartScreen = (function () {
     fs.onclick = toggleFull;
     card.appendChild(fs);
 
-    card.appendChild(el("div", "sicon", "🏀"));
-    card.appendChild(el("div", "stitle", opt.title || "你喜欢做什么? 꿈과 취미 탈출"));
+    card.appendChild(el("div", "sicon", "🚄"));
+    card.appendChild(el("div", "stitle", opt.title || "你去哪儿? 베이징 탈출"));
     card.appendChild(el("div", "ssub", opt.subtitle || "이름을 적고 모험을 시작하세요."));
 
     // 🔄 이어하기 안내 (튕겨 나갔다가 5분 안에 다시 들어온 경우)

@@ -223,43 +223,34 @@ window.World3D = (function () {
   //     새 방을 만들면 여기에 한 줄 추가하면 됩니다. 없으면 기본 교실 색을 씁니다.
   // ================================================================
   var WALL_H = 2.3, SHORT_H = 0.42, BUILD_H = 3.4;
-  // ⛰ 입체 맵 : maps.js 의 lift(13줄 × 24글자, 0~9) = 칸마다 바닥 높이 (한 단 LV m)
-  //   한 단 차이는 계단처럼 걸어 올라가고, 두 단 이상 차이는 절벽(못 지나감 · game.js 에서 막음)
-  var LV = 0.34, curLift = null;
-  function liftOf(L, x, y) {
-    if (!L || !L[y]) return 0;
-    var v = parseInt(L[y].charAt(x), 10);
-    return v > 0 ? v : 0;
-  }
-  function hAt(x, z) { return liftOf(curLift, Math.floor(x), Math.floor(z)) * LV }
   var BASE = {
     floor: "wood", floorA: "#e2b77f", floorB: "#d6a970",
     wall: "#fbf1da", wains: "#9fd3a4", trim: "#ffffff", cap: "#6d5443",
     curtain: "#ffb7a6", locker: "#8fbde0", sofa: "#f0a46c", bg: "indoor"
   };
   var STYLES = {
-    // 梦想广场 꿈의 광장 (출발)
-    gate:      { floor: "tile", floorA: "#e6dccb", floorB: "#dacfba", bg: "sky", outdoor: true, bWall: "#e9dcc4", bBase: "#9a8f80", bRoof: "#3f7ab8", bTrim: "#ffffff", riser: "#a8b0b8", riserCap: "#d8dde2", palace: true, tower: true, awning: "#e8443a" },
-    // 꿈 정원 (언덕 + 미로)
-    rooftop:   { floor: "grass", floorA: "#9ad874", floorB: "#8fcf69", bg: "sky", outdoor: true, wains: "#cfc8b6", cap: "#ebe5d6", riser: "#b9a888", riserCap: "#d8ccb2" },
-    // 밖 : 농구 경기장 · 축구장 · 문화 광장 · 태극권 공원
-    hall1:     { floor: "tile", floorA: "#c9cfd6", floorB: "#bfc6ce", bg: "sky", outdoor: true, bWall: "#e9dcc4", bBase: "#9a8f80", bRoof: "#3f7ab8", bTrim: "#ffffff", riser: "#a8b0b8", riserCap: "#d8dde2", song: false, awning: "#e8443a" },
-    up2:       { floor: "grass", floorA: "#93d36b", floorB: "#87c962", bg: "sky", outdoor: true, bWall: "#e9dcc4", bBase: "#9a8f80", bRoof: "#3f7ab8", bTrim: "#ffffff", riser: "#a8b0b8", riserCap: "#d8dde2", awning: "#3fae5a" },
-    up3:       { floor: "tile", floorA: "#e9dfcc", floorB: "#ddd2bc", bg: "sky", outdoor: true, bWall: "#e9dcc4", bBase: "#9a8f80", bRoof: "#3f7ab8", bTrim: "#ffffff", riser: "#a8b0b8", riserCap: "#d8dde2", awning: "#2f6fd6" },
-    up4:       { floor: "grass", floorA: "#9ad874", floorB: "#8fcf69", bg: "sky", outdoor: true, bWall: "#e9dcc4", bBase: "#9a8f80", bRoof: "#3f7ab8", bTrim: "#ffffff", riser: "#a8b0b8", riserCap: "#d8dde2", awning: "#c8372d", bRoof: "#3f9b6a", palace: true },
-    // 실내 12곳
-    class101:  { floor: "tile", floorA: "#d9e6f2", floorB: "#cfdcea", wains: "#2f6fd6", wall: "#f5f8fc", curtain: "#ffd23f" },                     // 탁구장
-    class102:  { floor: "tile", floorA: "#e9f4f8", floorB: "#dcecf2", wains: "#4fb6ec", wall: "#f6fbff", curtain: "#ffffff", riser: "#cfe3ec", riserCap: "#ffffff" }, // 수영장
-    science:   { floor: "tile", floorA: "#cfe0c4", floorB: "#c3d6b6", wains: "#3fae5a", wall: "#f6fbf2", curtain: "#ffd23f" },                     // 배드민턴 · 야구
-    music:     { floor: "tile", floorA: "#dde3ea", floorB: "#d0d7e0", wains: "#2f4a7a", wall: "#f5f8fc", curtain: "#9fc8f0" },                     // 경찰서
-    art:       { floor: "tile", floorA: "#e8f3f0", floorB: "#dcebe7", wains: "#7fc8a9", wall: "#f6fcfa", curtain: "#ffffff" },                     // 병원
-    class201:  { floor: "tile", floorA: "#f2e8d8", floorB: "#e8dcc8", wains: "#e8a33a", wall: "#fffaf0", curtain: "#ff9a5a" },                     // 요리 교실
-    library:   { floorA: "#dac9a8", floorB: "#cfbd99", wains: "#3d4f63", wall: "#f5f6f8", curtain: "#9fc8e8", sofa: "#3f7ab8" },                     // 회사 사무실
-    computer:  { floorA: "#b98b5b", floorB: "#ab7e50", wains: "#a77452", wall: "#f6e7c8", curtain: "#9bc98a", sofa: "#c0392b" },                     // 작가 북콘서트
-    broadcast: { floor: "carpet", floorA: "#3d3550", floorB: "#3d3550", wains: "#2f2f38", wall: "#4a4560", curtain: "#e8323c", sofa: "#c0392b" },   // 영화관
-    class301:  { floor: "carpet", floorA: "#a8322a", floorB: "#a8322a", wains: "#7a1f1a", wall: "#fff2dc", curtain: "#f2c14e", sofa: "#c0392b", riser: "#7a3b22", riserCap: "#f2c14e" }, // 경극 공연장
-    class302:  { floor: "carpet", floorA: "#4a3a6a", floorB: "#4a3a6a", wains: "#9b59b6", wall: "#efe6f8", curtain: "#ff8fb1", sofa: "#ff8fb1" },   // 노래방
-    office:    { floorA: "#e2c9a0", floorB: "#d8bd92", wains: "#ff8fb1", wall: "#fff6fa", curtain: "#c8b6ff" }                                       // 춤 연습실
+    // 톈안먼 광장 : 돌바닥 + 붉은 성벽 · 노란 기와 (palace)
+    gate:      { floor: "tile", floorA: "#e9dfcc", floorB: "#ddd2bc", bg: "sky", outdoor: true, palace: true,
+                 bWall: "#c8372d", bBase: "#9a8f80", bRoof: "#f2b632", bTrim: "#fff2c8" },
+    // 공원 : 잔디 + 낮은 돌담
+    rooftop:   { floor: "grass", floorA: "#9ad874", floorB: "#8fcf69", bg: "sky", outdoor: true,
+                 wains: "#cfc8b6", cap: "#ebe5d6" },
+    hall1:     { floor: "tile", floorA: "#e9edf2", floorB: "#dde3ea", wains: "#e8443a", curtain: "#ffd27a" },   // 1호선 (빨강)
+    up2:       { floor: "tile", floorA: "#e9edf2", floorB: "#dde3ea", wains: "#2f6fd6", curtain: "#a8dcf0" },   // 2호선 (파랑)
+    up3:       { floor: "tile", floorA: "#e9edf2", floorB: "#dde3ea", wains: "#3fae5a", curtain: "#ffd27a" },   // 3호선 (초록)
+    up4:       { floor: "tile", floorA: "#e9edf2", floorB: "#dde3ea", wains: "#9b59b6", curtain: "#ffb7a6" },   // 4호선 (보라)
+    class101:  { floor: "tile", floorA: "#eef3f6", floorB: "#e2eaef", wains: "#8fd0e8", wall: "#f7fbfd", curtain: "#ffffff", locker: "#8fbde0" },  // 洗手间
+    class102:  { floor: "tile", floorA: "#efe7d6", floorB: "#e5dbc6", wains: "#c9a227", wall: "#fbf6ea", curtain: "#e8d9a8", sofa: "#2f6fb3" },  // 银行
+    science:   { floor: "tile", floorA: "#e8f3f0", floorB: "#dcebe7", wains: "#7fc8a9", wall: "#f6fcfa", curtain: "#ffffff" },                     // 医院
+    music:     { floorA: "#d8b88a", floorB: "#cdaa7a", wains: "#e8823a", wall: "#fff3e0", curtain: "#ff6b6b" },                                     // 水果市场
+    art:       { floor: "tile", floorA: "#b9bec6", floorB: "#aeb4bd", wains: "#3fae5a", wall: "#f3f7f2", curtain: "#fff0a8", sofa: "#3fae5a" },     // 公交车站
+    class201:  { floor: "carpet", floorA: "#c94a3f", floorB: "#c94a3f", wains: "#a8322a", wall: "#fff3dc", curtain: "#ffd23f" },                    // 北京饭店
+    library:   { floor: "carpet", floorA: "#9b7b6a", floorB: "#9b7b6a", wains: "#5a7a9a", wall: "#f3efe6", curtain: "#e8a0b4", cap: "#3d4f63" },    // 火车 침대칸
+    computer:  { floor: "tile", floorA: "#e4e8ee", floorB: "#d8dde5", wains: "#2f6fb3", wall: "#f5f8fc", curtain: "#9fd0ee", sofa: "#f2a23a" },     // 机场
+    broadcast: { floor: "tile", floorA: "#cfd3d8", floorB: "#c4c9cf", wains: "#e8a33a", wall: "#fbf8f0", curtain: "#ffcf73" },                     // 교통 표지판관
+    class301:  { floor: "tile", floorA: "#c8d6c0", floorB: "#bccbb3", wains: "#69a85a", wall: "#f6fbf2", curtain: "#ffd23f" },                     // 자전거 대여소
+    class302:  { floorA: "#e3c98f", floorB: "#d8bd80", wains: "#a8693f", wall: "#fbf2de", curtain: "#9fd3a4" },                                    // 말 체험장
+    office:    { floorA: "#dac9a8", floorB: "#cfbd99", wains: "#e8443a", wall: "#fbf5e8", curtain: "#ffd27a", sofa: "#e8823a" }                      // 관광 안내소
   };
   function styleFor(id, M) {
     var s = {}, k;
@@ -292,8 +283,7 @@ window.World3D = (function () {
   // 벽에 붙여 두는 물건 (벽 반대쪽을 바라보게 돌립니다)
   var HUG = { bookshelf: 1, extinguisher: 1, chemcabinet: 1, servercab: 1, filecabinet: 1, printer: 1,
               watercooler: 1, artshelf: 1, gearbox: 1, clock: 1, chalkboard: 1, plant: 0,
-              sink: 1, safe: 1, atm: 1, kiosk: 1, ticketmachine: 1, brochure: 1, shoeshelf: 1, redpaper: 1, moviescreen: 1, masks: 1, mirror: 1,
-              snackshelf: 1, fridge: 1, ingredshelf: 1, teashelf: 1 };
+              sink: 1, safe: 1, atm: 1, kiosk: 1, ticketmachine: 1, brochure: 1 };
 
   function buildRoom(id, M, opt) {
     opt = opt || {};
@@ -322,10 +312,8 @@ window.World3D = (function () {
       if (wallish(x, y + 1)) return Math.PI;
       return 0;
     }
-    var LIFT = M.lift || null;
-    function lv(x, y) { return liftOf(LIFT, x, y) }
     var ctx = { B: B, S: S, ch: ch, ob: ob, wallish: wallish, open: open, outdoor: outdoor, roof: roof,
-                R: R, C: C, id: id, lv: lv };
+                R: R, C: C, id: id };
     // 복도처럼 화면 앞쪽(아래쪽) 벽이 창가이면, 그 벽은 반투명으로 그립니다
     ctx.fadeFront = false;
     if (!outdoor && !roof) {
@@ -344,11 +332,7 @@ window.World3D = (function () {
       }
       var o = ob(x, y);
       if (o === "stairdown") continue;              // 내려가는 계단은 바닥에 구멍
-      var L0 = lv(x, y);
-      if (L0) B.push(0, L0 * LV, 0, 0);
       floorTile(ctx, x, y, o === "grass" ? "grass" : S.floor);
-      if (L0) B.pop();
-      if (L0) liftSides(ctx, x, y, L0);             // ⛰ 높은 칸의 옆면 (계단 · 축대)
     }
     // ---------- 벽 ----------
     for (y = 0; y < R; y++) for (x = 0; x < C; x++) {
@@ -357,7 +341,6 @@ window.World3D = (function () {
       else if (roof) parapet(ctx, x, y);
       else interiorWall(ctx, x, y);
     }
-    if (M.court) drawCourt(ctx, M.court);            // 🏀⚽ 경기장 선
     // ---------- 문 ('D' 글자) ----------
     for (y = 0; y < R; y++) for (x = 0; x < C; x++) {
       if (ch(x, y) !== "D") continue;
@@ -375,7 +358,7 @@ window.World3D = (function () {
           while (x1 + 1 < C && FAMILY[ob(x1 + 1, y)] === fam && !wallish(x1 + 1, y)) x1++;
           var n = x1 - x + 1;
           var rot = wallish(x, y - 1) ? 0 : (wallish(x, y + 1) && !open(x, y - 1)) ? Math.PI : 0;
-          B.push(x + n / 2, lv(x, y) * LV, y + 0.5, rot);
+          B.push(x + n / 2, 0, y + 0.5, rot);
           if (RUN[fam]) RUN[fam](ctx, n, x, y);
           B.pop();
           x = x1;
@@ -384,7 +367,7 @@ window.World3D = (function () {
         var fn = ONE[name];
         if (!fn) continue;
         var r2 = HUG[name] ? hugRot(x, y) : 0;
-        B.push(x + 0.5, lv(x, y) * LV, y + 0.5, r2);
+        B.push(x + 0.5, 0, y + 0.5, r2);
         fn(ctx, x, y);
         B.pop();
       }
@@ -401,35 +384,6 @@ window.World3D = (function () {
       if (y < minY) minY = y; if (y > maxY) maxY = y;
     }
     return { group: grp, style: S, outdoor: !!S.outdoor, bounds: { minX: minX, maxX: maxX, minY: minY, maxY: maxY } };
-  }
-
-  // ---------- ⛰ 높은 칸의 옆면 : 한 단 차이는 돌계단, 두 단 이상은 돌 축대 ----------
-  function liftSides(c, x, y, L) {
-    var B = c.B, S = c.S, cx = x + 0.5, cz = y + 0.5;
-    var stone = S.riser || "#cbb89a", cap = S.riserCap || "#e9dcc4";
-    var N = [[0, 1, 0], [0, -1, Math.PI], [1, 0, Math.PI / 2], [-1, 0, -Math.PI / 2]];
-    for (var i = 0; i < 4; i++) {
-      var nx = x + N[i][0], ny = y + N[i][1];
-      if (nx < 0 || ny < 0 || nx >= c.C || ny >= c.R || c.wallish(nx, ny)) continue;
-      var Ln = c.lv(nx, ny);
-      if (Ln >= L) continue;
-      var top = L * LV, bot = Ln * LV, d = L - Ln;
-      B.push(cx, 0, cz, N[i][2]);
-      if (d === 1) {                                  // 계단 두 칸 (아래 칸이 바깥으로 살짝 나옴)
-        B.box(0, bot, 0.5 + 0.1, 1.0, LV / 2, 0.2, stone, 0.02);
-        B.box(0, bot, 0.5 - 0.05, 1.0, top - bot, 0.12, shade(stone, -0.06), 0.01);
-        B.box(0, bot + LV / 2 - 0.012, 0.5 + 0.1, 1.0, 0.025, 0.2, cap, 0.005);
-        B.box(0, top - 0.012, 0.5 - 0.05, 1.0, 0.025, 0.12, cap, 0.005);
-      } else {                                        // 축대 (벽돌 줄무늬 + 난간)
-        B.box(0, bot, 0.5 - 0.04, 1.0, top - bot, 0.1, shade(stone, -0.1), 0.01);
-        for (var k = 1; k < d; k++) B.box(0, bot + k * LV, 0.5 + 0.012, 1.0, 0.02, 0.01, shade(stone, -0.22), 0);
-        B.box(0, top, 0.5 - 0.04, 1.02, 0.07, 0.14, cap, 0.02);
-        B.cyl(-0.42, top, 0.45, 0.03, 0.03, 0.42, "#b0703a", 6);
-        B.cyl(0.42, top, 0.45, 0.03, 0.03, 0.42, "#b0703a", 6);
-        B.box(0, top + 0.38, 0.45, 0.92, 0.04, 0.04, "#c98b55", 0.01);
-      }
-      B.pop();
-    }
   }
 
   // ---------- 바닥 한 칸 ----------
@@ -547,8 +501,7 @@ window.World3D = (function () {
     var edge = x === 0 || y === 0 || x === c.C - 1 || y === c.R - 1;
     if (edge) {
       if (y === 0 && x > 2 && x < c.C - 3) return;          // 건물 뒤라 안 보이는 자리
-      if (S.bamboo && y !== c.R - 1) bambooHedge(B, cx, cz, x, y);
-      else hedge(B, cx, cz, y === c.R - 1 ? 0.42 : 0.72, x, y);     // 카메라 쪽 울타리는 낮게
+      hedge(B, cx, cz, y === c.R - 1 ? 0.42 : 0.72, x, y);     // 카메라 쪽 울타리는 낮게
       return;
     }
     B.box(cx, 0, cz, 1, 0.4, 1, S.bBase, 0);
@@ -557,7 +510,7 @@ window.World3D = (function () {
       B.box(cx, BUILD_H - 0.25, cz, 1.0, 0.25, 1.02, "#2f6f9a", 0);
       B.box(cx, BUILD_H, cz + 0.12, 1.02, 0.1, 1.3, S.bRoof, 0.02);
       B.box(cx, BUILD_H + 0.1, cz, 1.0, 0.22, 0.95, shade(S.bRoof, -0.08), 0);
-      if (S.tower && y === 1 && x >= 7 && x <= 16) {        // 가운데 높은 성루
+      if (y === 1 && x >= 7 && x <= 16) {                   // 가운데 높은 성루
         B.box(cx, BUILD_H + 0.32, cz, 1, 0.85, 0.9, "#b8302a", 0);
         B.box(cx, BUILD_H + 0.95, cz, 1.0, 0.2, 0.92, "#2f6f9a", 0);
         B.box(cx, BUILD_H + 1.15, cz + 0.1, 1.04, 0.1, 1.3, S.bRoof, 0.02);
@@ -569,13 +522,8 @@ window.World3D = (function () {
     B.box(cx, BUILD_H, cz, 1.06, 0.2, 1.06, S.bRoof, 0.03);
     if (c.open(x, y + 1)) {                                  // 건물 앞면 장식
       B.box(cx, 1.78, cz + 0.5, 1, 0.1, 0.08, S.bBase, 0);
-      var win = S.song ? songWindow : schoolWindow;
-      if (c.ob(x, y) === "window") win(B, cx, 0.75, cz + 0.5);
-      if (c.ob(x, y - 1) === "window") win(B, cx, 2.18, cz + 0.5);
-      if (S.song && x % 2 === 0) {                            // 처마 밑 홍등
-        B.cyl(cx, 2.9, cz + 0.62, 0.005, 0.005, 0.3, "#3b2f2a", 4);
-        B.glow(function () { B.ball(cx, 2.78, cz + 0.62, 0.13, 0.11, 0.13, "#ff3b30", 10) });
-      }
+      if (c.ob(x, y) === "window") schoolWindow(B, cx, 0.75, cz + 0.5);
+      if (c.ob(x, y - 1) === "window") schoolWindow(B, cx, 2.18, cz + 0.5);
     }
     if (c.open(x - 1, y) || c.open(x + 1, y)) {
       var sx = c.open(x - 1, y) ? cx - 0.5 : cx + 0.5;
@@ -596,18 +544,6 @@ window.World3D = (function () {
     if (rnd(x, y, 6) < 0.3) {                                 // 울타리에 핀 작은 꽃
       var fc = pickc(["#ffffff", "#ffd1dc", "#fff08a"], rnd(x, y, 8));
       B.ball(cx + (rnd(x, y, 10) - 0.5) * 0.6, h * (0.4 + rnd(x, y, 11) * 0.5), cz + 0.5, 0.045, 0.045, 0.02, fc, 5);
-    }
-  }
-  function bambooHedge(B, cx, cz, x, y) {          // 🎋 대나무 숲 울타리
-    B.box(cx, 0, cz, 0.96, 0.34, 0.96, "#5f9a4a", 0.08);
-    B.box(cx, 0.34, cz, 0.9, 0.04, 0.9, "#4f8a3e", 0.02);
-    for (var k = 0; k < 5; k++) {
-      var bx = cx + (rnd(x, y, k) - 0.5) * 0.7, bz = cz + (rnd(x, y, k + 9) - 0.5) * 0.7;
-      var h = 0.75 + rnd(x, y, k + 20) * 0.45, col = pickc(["#7cc56a", "#6db85c", "#8fd27a"], rnd(x, y, k + 30));
-      B.cyl(bx, 0, bz, 0.045, 0.05, h, col, 7);
-      for (var j = 1; j < 4; j++) B.cyl(bx, h * j / 4, bz, 0.055, 0.055, 0.02, shade(col, -0.2), 7);
-      B.ball(bx + 0.1, h - 0.05, bz, 0.16, 0.05, 0.08, "#5ea84f", 6);
-      B.ball(bx - 0.08, h * 0.75, bz + 0.05, 0.13, 0.04, 0.07, "#77c266", 6);
     }
   }
   function parapet(c, x, y) {
@@ -1367,13 +1303,11 @@ window.World3D = (function () {
       B.floor(0, 0.03, 0, 1, 1, ((x + y) % 2) ? "#6ec0f0" : "#66b8ea");
       var edge = [[-1, 0, -0.48, 0, 0.06, 1], [1, 0, 0.48, 0, 0.06, 1], [0, -1, 0, -0.48, 1, 0.06], [0, 1, 0, 0.48, 1, 0.06]];
       edge.forEach(function (e) {
-        var nb = ob(x + e[0], y + e[1]);
-        if (nb === "pond" || nb === "boat") return;
+        if (ob(x + e[0], y + e[1]) === "pond") return;
         B.box(e[2], 0, e[3], e[4], 0.12, e[5], "#b9b1a0", 0.02);
       });
       if (rnd(x, y, 1) < 0.5) B.cyl(-0.2, 0.035, 0.15, 0.12, 0.12, 0.01, "#5fae4f", 10);
       var v = rnd(x, y, 2);
-      if (c.S.song) v = v < 0.85 ? 0.45 + v * 0.4 : 0.9;     // 운하 : 오리는 드물게, 물고기 위주
       if (v < 0.45) {                                  // 오리
         B.ball(0.1, 0.12, -0.05, 0.13, 0.09, 0.1, "#ffffff", 8);
         B.ball(0.2, 0.25, -0.05, 0.07, 0.07, 0.07, "#ffffff", 8);
@@ -1392,638 +1326,19 @@ window.World3D = (function () {
       B.ball(0, 1.95, 0, 0.07, 0.09, 0.07, "#f2c14e", 8);
       B.box(0, 0.1, 0.2, 0.6, 0.3, 0.2, "#a8693f", 0.03);
     },
-    // ================= 🍜 7과 你吃饭了吗? — 먹거리 물건 =================
-    soypot: function (c) { stovePot(c.B, "#fbf3df", "dou") },          // 豆浆 콩국 솥
-    wontonpot: function (c) { stovePot(c.B, "#e9c98a", "wonton") },     // 馄饨 만둣국 솥
-    frywok: function (c) {                             // 油条 튀김 솥
-      var B = c.B;
-      stoveBase(B);
-      B.cyl(0, 0.62, 0, 0.42, 0.28, 0.18, "#3d4350", 18);
-      B.cyl(0, 0.76, 0, 0.38, 0.38, 0.02, "#e8b33a", 18);
-      for (var k = 0; k < 5; k++) B.boxR(-0.2 + k * 0.1, 0.8, (k % 2) * 0.1 - 0.05, 0.07, 0.06, 0.42, "#d9902f", 0.03, 0, 0.3 * (k - 2), 0);
-      B.box(0.36, 0.78, -0.1, 0.03, 0.03, 0.5, "#c9a227", 0.01);
-      steam(B, 0, 0.9, 0, 3);
-    },
-    ytbasket: function (c) {                           // 油条 바구니
-      var B = c.B;
-      B.box(0, 0, 0, 0.8, 0.62, 0.6, "#c99a64", 0.04);
-      B.cyl(0, 0.62, 0, 0.32, 0.26, 0.2, "#c9a46a", 14);
-      for (var k = 0; k < 8; k++) B.boxR(-0.18 + (k % 4) * 0.12, 0.86 + Math.floor(k / 4) * 0.05, (k % 2) * 0.08 - 0.04, 0.06, 0.05, 0.46, k % 3 ? "#e09a35" : "#c97a25", 0.025, 0.1, 0.4 * ((k % 3) - 1), 0);
-    },
-    jbcart: function (c) {                             // 煎饼 수레 (둥근 철판)
-      var B = c.B;
-      B.box(0, 0.16, 0, 0.9, 0.56, 0.62, "#3fae5a", 0.04);
-      for (var s = -1; s <= 1; s += 2) B.cylR(s * 0.46, 0.15, 0.05, 0.15, 0.15, 0.05, DARK, 12, 0, 0, Math.PI / 2);
-      B.cyl(0, 0.72, 0, 0.36, 0.36, 0.05, "#2f3540", 20);
-      B.cyl(0, 0.77, 0, 0.3, 0.3, 0.01, "#f2d27a", 20);
-      B.cyl(0.05, 0.775, 0.02, 0.16, 0.16, 0.01, "#ffcf4a", 14);
-      B.box(-0.08, 0.785, -0.05, 0.14, 0.01, 0.05, "#6fbf5f", 0);
-      B.boxR(0.3, 0.82, 0.18, 0.18, 0.02, 0.08, "#b8c1c8", 0.005, 0, 0.6, 0);
-      for (var k = 0; k < 2; k++) B.cyl(-0.38, 0.72 + k * 0.001, -0.18 + k * 0.14, 0.06, 0.06, 0.12, k ? "#ff9a2a" : "#e8443a", 10);
-      B.cyl(-0.42, 0.72, 0.25, 0.02, 0.02, 1.0, "#c99a64", 6);
-      B.box(-0.42, 1.55, 0.25, 0.04, 0.3, 0.5, "#e8443a", 0.02);
-    },
-    grill: function (c, x, y) {                        // 串儿 꼬치구이 화로
-      var B = c.B;
-      B.box(0, 0, 0, 0.9, 0.62, 0.5, "#5d6875", 0.04);
-      B.box(0, 0.62, 0, 0.92, 0.12, 0.52, "#3d4350", 0.02);
-      B.glow(function () { B.box(0, 0.7, 0, 0.8, 0.03, 0.4, "#ff6a2a", 0) });
-      for (var k = 0; k < 7; k++) {
-        var kx = -0.36 + k * 0.12;
-        B.box(kx, 0.79, 0, 0.012, 0.012, 0.62, "#e6d2a8", 0);
-        for (var j = 0; j < 4; j++) B.box(kx, 0.79, -0.1 + j * 0.065, 0.05, 0.045, 0.05, j % 2 ? "#a8502a" : "#c0602f", 0.015);
-      }
-      steam(B, 0, 0.95, 0, 4, "#d9d9d9");
-    },
-    snackshelf: function (c, x, y) {                   // 零食 간식 선반 (瓜子 · 辣条)
-      var B = c.B;
-      B.box(0, 0, -0.18, 0.92, 1.6, 0.4, "#e6bf8a", 0.03);
-      for (var r = 0; r < 4; r++) {
-        var y0 = 0.1 + r * 0.38;
-        B.box(0, y0 - 0.02, -0.12, 0.84, 0.03, 0.36, "#c99a64", 0);
-        for (var k = 0; k < 4; k++) {
-          var v = rnd(x + k, y + r, 3), col = v < 0.3 ? "#e8443a" : v < 0.55 ? "#3d3a35" : v < 0.8 ? "#f2c14e" : "#7bc8a4";
-          B.box(-0.3 + k * 0.2, y0, -0.06, 0.17, 0.26, 0.12, col, 0.03);
-          B.box(-0.3 + k * 0.2, y0 + 0.15, 0.005, 0.1, 0.06, 0.005, "#ffffff", 0);
-        }
-      }
-    },
-    fridge: function (c) {                             // 可乐 냉장고
-      var B = c.B;
-      B.box(0, 0, -0.08, 0.8, 1.75, 0.6, "#e8443a", 0.05);
-      B.glass(function () { B.box(0, 0.12, 0.23, 0.66, 1.4, 0.02, "#dff4ff", 0) });
-      for (var r = 0; r < 4; r++) for (var k = 0; k < 4; k++) {
-        B.cyl(-0.22 + k * 0.15, 0.16 + r * 0.34, 0.05, 0.05, 0.05, 0.22, r % 2 ? "#5a2a1a" : "#3a1a10", 8);
-        B.cyl(-0.22 + k * 0.15, 0.38 + r * 0.34, 0.05, 0.02, 0.04, 0.06, "#e8443a", 8);
-      }
-      B.glow(function () { B.box(0, 1.58, 0.225, 0.6, 0.12, 0.01, "#ffffff", 0.02) });
-    },
-    tastebar: function (c) {                           // 맛 체험대 (시다 · 달다 · 쓰다 · 짜다)
-      var B = c.B;
-      B.box(0, 0, 0, 0.94, 0.7, 0.62, "#f4e3c4", 0.04);
-      B.box(0, 0.7, 0, 0.98, 0.05, 0.66, "#e6bf8a", 0.02);
-      B.ball(-0.33, 0.83, 0, 0.09, 0.075, 0.075, "#ffe14a", 10);                    // 레몬 suān
-      B.box(-0.11, 0.75, 0, 0.16, 0.03, 0.22, "#6b3a1f", 0.01);                   // 초콜릿 tián
-      for (var k = 0; k < 3; k++) B.box(-0.11, 0.78, -0.07 + k * 0.07, 0.15, 0.015, 0.06, "#7a4528", 0.005);
-      B.cyl(0.12, 0.75, 0, 0.09, 0.07, 0.07, "#ffffff", 12);                     // 쓴 약 kǔ
-      B.cyl(0.12, 0.81, 0, 0.075, 0.075, 0.01, "#4a2e1a", 12);
-      B.cyl(0.34, 0.75, 0, 0.055, 0.055, 0.18, "#e8eef2", 10);                   // 소금 xián
-      B.cyl(0.34, 0.93, 0, 0.06, 0.05, 0.05, "#b8c1c8", 10);
-    },
-    icecream: function (c) {                           // 冰淇淋 아이스크림 수레
-      var B = c.B;
-      B.box(0, 0.16, 0, 0.84, 0.6, 0.56, "#9fd8f0", 0.06);
-      for (var s = -1; s <= 1; s += 2) B.cylR(s * 0.43, 0.15, 0, 0.15, 0.15, 0.05, DARK, 12, 0, 0, Math.PI / 2);
-      for (var k = 0; k < 3; k++) {
-        var px = -0.24 + k * 0.24;
-        B.cylR(px, 0.88, 0.05, 0.07, 0.005, 0.22, "#e6b56a", 10, Math.PI, 0, 0);
-        B.ball(px, 1.02, 0.05, 0.09, 0.08, 0.09, ["#ff9fcf", "#fff2c2", "#8fd3a4"][k], 10);
-      }
-      for (var s2 = -1; s2 <= 1; s2 += 2) B.cyl(s2 * 0.38, 0.76, -0.24, 0.02, 0.02, 0.9, "#ffffff", 6);
-      for (var i = 0; i < 5; i++) B.boxR(-0.4 + i * 0.2, 1.68, -0.02, 0.2, 0.03, 0.56, i % 2 ? "#ffffff" : "#ff9fcf", 0.005, -0.25, 0, 0);
-    },
-    bigcup: function (c) {                             // 🧋 왕 버블티 조형물 (珍珠奶茶)
-      var B = c.B;
-      B.cyl(0, 0, 0, 0.38, 0.4, 0.12, "#c99a64", 16);
-      for (var k = 0; k < 18; k++) {                  // 바닥의 까만 타피오카 펄
-        var a = k * 2.4, r = 0.1 + (k % 3) * 0.09;
-        B.ball(Math.cos(a) * r, 0.2 + Math.floor(k / 6) * 0.11, Math.sin(a) * r, 0.07, 0.07, 0.07, "#2b1a12", 8);
-      }
-      B.cyl(0, 0.5, 0, 0.33, 0.3, 1.0, "#e9c9a0", 18);           // 밀크티
-      B.cyl(0, 0.5, 0, 0.335, 0.335, 0.05, "#8a5530", 18);       // 흑당 줄무늬
-      B.cyl(0, 1.0, 0, 0.345, 0.345, 0.04, "#a8693f", 18);
-      B.glass(function () { B.cyl(0, 0.12, 0, 0.37, 0.3, 1.5, "#f7e3c4", 18) });
-      B.cyl(0, 1.62, 0, 0.38, 0.38, 0.05, "#ffffff", 18);
-      B.cylR(0.08, 2.0, 0, 0.04, 0.04, 0.9, "#ff6b9d", 8, 0, 0, -0.2);
-    },
-    bigbowl: function (c) {                            // 🍜 왕 국수 그릇 조형물
-      var B = c.B;
-      B.cyl(0, 0, 0, 0.32, 0.36, 0.3, "#8e9aa6", 14);
-      B.cyl(0, 0.3, 0, 0.52, 0.22, 0.5, "#ffffff", 20);
-      B.cyl(0, 0.79, 0, 0.5, 0.5, 0.03, "#b8402f", 20);
-      B.cyl(0, 0.72, 0, 0.47, 0.47, 0.05, "#e8843a", 20);
-      for (var k = 0; k < 8; k++) B.ring(Math.cos(k) * 0.18, 0.78, Math.sin(k) * 0.18, 0.09, 0.012, "#f7dfa0", Math.PI / 2, 0, 0);
-      B.ball(0.2, 0.8, -0.1, 0.1, 0.03, 0.08, "#f2c14e", 8);
-      B.ball(-0.18, 0.8, 0.15, 0.06, 0.03, 0.06, "#6fbf5f", 8);
-      for (var s = -1; s <= 1; s += 2) B.boxR(0.12 + s * 0.04, 1.2, 0, 0.03, 0.9, 0.03, "#a8693f", 0.01, 0, 0, -0.35);
-      steam(B, 0, 1.0, 0, 4);
-    },
-    foodtable: function (c, x, y) {                    // 식당 네모 탁자 + 음식 + 의자
-      var B = c.B, dish = c.S.dish || ["#f2c14e", "#e8843a", "#fbf3df"];
-      B.box(0, 0, 0, 0.08, 0.66, 0.08, "#7a4a2b", 0.02);
-      B.box(0, 0.66, 0, 0.84, 0.06, 0.74, "#a8693f", 0.02);
-      for (var k = 0; k < 3; k++) {
-        var px = -0.24 + k * 0.24, pz = (k % 2) * 0.16 - 0.08;
-        B.cyl(px, 0.72, pz, 0.11, 0.07, 0.07, "#ffffff", 12);
-        B.cyl(px, 0.785, pz, 0.095, 0.095, 0.01, pickc(dish, rnd(x + k, y, 2)), 12);
-      }
-      B.box(0.3, 0.73, 0.25, 0.02, 0.01, 0.24, "#c0392b", 0);
-      B.box(0.33, 0.73, 0.25, 0.02, 0.01, 0.24, "#c0392b", 0);
-      for (var s = -1; s <= 1; s += 2) {
-        B.cyl(s * 0.62, 0, 0, 0.15, 0.15, 0.42, "#c0392b", 12);
-        B.cyl(s * 0.62, 0.42, 0, 0.16, 0.16, 0.03, "#f2c14e", 12);
-      }
-    },
-    malatable: function (c, x, y) {                    // 麻辣烫 원탁 (빨간 국물 그릇)
-      var B = c.B;
-      B.cyl(0, 0, 0, 0.25, 0.3, 0.05, "#5a3d2b", 14);
-      B.cyl(0, 0.05, 0, 0.06, 0.06, 0.6, "#5a3d2b", 10);
-      B.cyl(0, 0.64, 0, 0.5, 0.5, 0.05, "#e8823a", 22);
-      B.cyl(0, 0.69, 0, 0.22, 0.22, 0.03, "#fff6ea", 18);
-      B.cyl(0, 0.72, 0, 0.18, 0.13, 0.12, "#ffffff", 14);
-      B.cyl(0, 0.84, 0, 0.17, 0.17, 0.01, "#c8251c", 14);
-      for (var k = 0; k < 6; k++) B.ball(Math.cos(k) * 0.09, 0.85, Math.sin(k) * 0.09, 0.03, 0.015, 0.03, pickc(["#6fbf5f", "#f2c14e", "#fff2d0", "#8a5530"], rnd(x + k, y, 4)), 6);
-      B.cyl(0.3, 0.69, -0.2, 0.08, 0.06, 0.12, "#ffffff", 10);                    // 찻주전자
-      B.ball(0.3, 0.84, -0.2, 0.03, 0.02, 0.03, "#ffffff", 6);
-      steam(B, 0, 0.95, 0, 3, "#ffd2c2");
-      for (var s = 0; s < 4; s++) {
-        var b = s / 4 * Math.PI * 2 + Math.PI / 4;
-        B.cyl(Math.cos(b) * 0.66, 0, Math.sin(b) * 0.66, 0.13, 0.13, 0.42, "#3d4350", 10);
-        B.cyl(Math.cos(b) * 0.66, 0.42, Math.sin(b) * 0.66, 0.15, 0.15, 0.04, "#c0392b", 10);
-      }
-    },
-    ingredshelf: function (c, x, y) {                  // 마라탕 재료 고르는 냉장고
-      var B = c.B;
-      B.box(0, 0, -0.1, 0.92, 1.3, 0.55, "#dfe6ec", 0.04);
-      B.glass(function () { B.box(0, 0.1, 0.19, 0.84, 1.1, 0.02, "#e9f8ff", 0) });
-      for (var r = 0; r < 3; r++) for (var k = 0; k < 4; k++) {
-        var col = pickc(["#6fbf5f", "#f2c14e", "#fff2d0", "#e8843a", "#8a5530", "#c8251c"], rnd(x + k, y + r, 7));
-        B.box(-0.3 + k * 0.2, 0.15 + r * 0.36, 0.0, 0.16, 0.08, 0.3, "#b8c1c8", 0.01);
-        B.ball(-0.3 + k * 0.2, 0.26 + r * 0.36, 0.0, 0.07, 0.04, 0.12, col, 6);
-      }
-      B.glow(function () { B.box(0, 1.3, -0.1, 0.92, 0.12, 0.55, "#ff5a3c", 0.02) });
-    },
-    steamer: function (c) {                            // 包子 대나무 찜기 탑
-      var B = c.B;
-      B.box(0, 0, 0, 0.8, 0.55, 0.6, "#c99a64", 0.04);
-      for (var k = 0; k < 4; k++) {
-        B.cyl(0, 0.55 + k * 0.16, 0, 0.32, 0.32, 0.15, k % 2 ? "#d9b47a" : "#e6c48a", 18);
-        B.cyl(0, 0.55 + k * 0.16 + 0.15, 0, 0.33, 0.33, 0.01, "#b8925a", 18);
-      }
-      B.cyl(0, 1.19, 0, 0.32, 0.2, 0.08, "#e6c48a", 18);
-      B.ball(0, 1.3, 0, 0.06, 0.04, 0.06, "#b8925a", 8);
-      for (var j = 0; j < 3; j++) B.ball(-0.22 + j * 0.22, 0.6, 0.38, 0.09, 0.07, 0.09, "#fffaf0", 10);
-      steam(B, 0, 1.3, 0, 4);
-    },
-    teatable: function (c) {                           // 乌龙茶 찻상 (낮은 탁자 + 다기)
-      var B = c.B;
-      B.box(0, 0, 0, 0.82, 0.42, 0.62, "#7a4a2b", 0.04);
-      B.box(0, 0.42, 0, 0.88, 0.05, 0.68, "#5a3720", 0.02);
-      B.box(0, 0.47, 0, 0.5, 0.03, 0.34, "#3d2a1a", 0.01);
-      B.ball(-0.08, 0.56, 0, 0.09, 0.07, 0.09, "#a8502a", 10);
-      B.boxR(0.03, 0.57, 0, 0.1, 0.02, 0.02, "#a8502a", 0.01, 0, 0, 0.5);
-      for (var k = 0; k < 4; k++) B.cyl(0.12 + (k % 2) * 0.08, 0.5, -0.08 + Math.floor(k / 2) * 0.14, 0.03, 0.025, 0.04, "#fffaf0", 8);
-      for (var s = -1; s <= 1; s += 2) B.box(s * 0.62, 0, 0, 0.3, 0.2, 0.36, "#c0392b", 0.06);
-      steam(B, -0.08, 0.7, 0, 2);
-    },
-    teashelf: function (c, x, y) {                     // 찻잎 통 선반
-      var B = c.B;
-      B.box(0, 0, -0.18, 0.92, 1.6, 0.4, "#7a4a2b", 0.03);
-      for (var r = 0; r < 4; r++) {
-        B.box(0, 0.08 + r * 0.38, -0.12, 0.84, 0.03, 0.36, "#5a3720", 0);
-        for (var k = 0; k < 4; k++) {
-          var col = pickc(["#3f9b6a", "#c0392b", "#f2c14e", "#2f6fb3", "#8a5530"], rnd(x + k, y + r, 3));
-          B.cyl(-0.3 + k * 0.2, 0.11 + r * 0.38, -0.05, 0.07, 0.07, 0.22, col, 12);
-          B.cyl(-0.3 + k * 0.2, 0.33 + r * 0.38, -0.05, 0.072, 0.072, 0.03, "#e6c48a", 12);
-        }
-      }
-    },
-    bamboo: function (c, x, y) {                       // 🎋 대나무 덤불
-      var B = c.B;
-      B.cyl(0, 0, 0, 0.42, 0.46, 0.12, "#8a6a4a", 14);
-      for (var k = 0; k < 6; k++) {
-        var a = k * 1.05 + rnd(x, y, k), r = 0.12 + rnd(x, y, k + 3) * 0.2, h = 1.4 + rnd(x, y, k + 7) * 1.0;
-        var bx = Math.cos(a) * r, bz = Math.sin(a) * r, col = pickc(["#7cc56a", "#6db85c", "#8fd27a"], rnd(x, y, k + 11));
-        B.cyl(bx, 0.1, bz, 0.04, 0.045, h, col, 7);
-        for (var j = 1; j < 5; j++) B.cyl(bx, 0.1 + h * j / 5, bz, 0.05, 0.05, 0.02, shade(col, -0.2), 7);
-        B.ball(bx + 0.12, 0.1 + h, bz, 0.18, 0.05, 0.08, "#5ea84f", 6);
-        B.ball(bx - 0.1, h * 0.8, bz + 0.06, 0.15, 0.04, 0.07, "#77c266", 6);
-      }
-    },
-    pandarest: function (c, x, y) {                    // 🐼 누워서 대나무 먹는 판다
-      var B = c.B, W = "#ffffff", K = "#2f2f38";
-      B.push(0, 0, 0, (rnd(x, y, 1) - 0.5) * 1.2);
-      B.ball(0, 0.3, 0, 0.36, 0.28, 0.3, W, 12);
-      B.ball(0, 0.3, 0.02, 0.37, 0.12, 0.31, K, 12);
-      B.ball(0.38, 0.5, 0, 0.24, 0.22, 0.22, W, 12);
-      for (var s = -1; s <= 1; s += 2) {
-        B.ball(0.42, 0.7, s * 0.15, 0.08, 0.08, 0.06, K, 8);
-        B.ball(0.55, 0.53, s * 0.08, 0.05, 0.065, 0.04, K, 8);
-        B.ball(0.6, 0.52, s * 0.08, 0.02, 0.02, 0.02, W, 6);
-        B.ball(-0.25, 0.18, s * 0.22, 0.12, 0.12, 0.12, K, 8);
-        B.ball(0.12, 0.5, s * 0.25, 0.09, 0.15, 0.09, K, 8);
-      }
-      B.ball(0.6, 0.42, 0, 0.05, 0.035, 0.04, K, 6);
-      B.cylR(0.42, 0.55, 0.24, 0.025, 0.025, 0.55, "#7cc56a", 7, 0.5, 0, -0.6);
-      B.ball(0.62, 0.78, 0.36, 0.14, 0.04, 0.06, "#5ea84f", 6);
-      B.pop();
-    },
-    bed: function (c) {                                // 기숙사 침대 (본문1)
-      var B = c.B;
-      B.box(0, 0, 0, 0.9, 0.36, 0.96, "#c99a64", 0.03);
-      B.box(0, 0.36, 0, 0.86, 0.14, 0.92, "#ffffff", 0.05);
-      B.box(0, 0.5, 0.15, 0.88, 0.06, 0.6, "#9fc8f0", 0.03);
-      B.box(0, 0.5, -0.32, 0.5, 0.1, 0.22, "#c8b6ff", 0.05);
-      B.box(0, 0.36, -0.47, 0.92, 0.6, 0.06, "#a8693f", 0.02);
-    },
-    deliverybox: function (c) {                        // 外卖 배달 상자 + 햄버거 (汉堡包)
-      var B = c.B;
-      B.box(0, 0, 0, 0.6, 0.5, 0.5, "#ffcf4a", 0.05);
-      B.box(0, 0.12, 0.255, 0.4, 0.2, 0.01, "#2f6fb3", 0.02);
-      B.ball(0, 0.62, 0, 0.18, 0.08, 0.18, "#e8a33a", 12);
-      B.cyl(0, 0.55, 0, 0.19, 0.19, 0.03, "#6fbf5f", 14);
-      B.cyl(0, 0.58, 0, 0.18, 0.18, 0.04, "#6b3a1f", 14);
-      B.cyl(0, 0.53, 0, 0.17, 0.17, 0.03, "#e6b56a", 14);
-      for (var k = 0; k < 4; k++) B.box(0.26 + (k % 2) * 0.04, 0.5, -0.12 + k * 0.05, 0.025, 0.2, 0.025, "#ffcf4a", 0.005);
-      B.box(0.28, 0.5, -0.05, 0.12, 0.08, 0.2, "#e8443a", 0.01);
-      B.cyl(-0.24, 0.5, -0.12, 0.06, 0.05, 0.2, "#e8443a", 10);
-    },
-    scooter: function (c) {                            // 배달 오토바이
-      var B = c.B;
-      for (var s = -1; s <= 1; s += 2) B.ring(s * 0.34, 0.18, 0, 0.15, 0.05, DARK, 0, 0, 0);
-      B.box(0, 0.16, 0, 0.6, 0.14, 0.24, "#3fa0e8", 0.05);
-      B.boxR(0.3, 0.5, 0, 0.12, 0.6, 0.22, "#3fa0e8", 0.04, 0, 0, -0.25);
-      B.box(0.38, 0.82, 0, 0.04, 0.04, 0.46, "#2f3540", 0.01);
-      B.box(-0.12, 0.34, 0, 0.36, 0.08, 0.24, "#2f3540", 0.03);
-      B.box(-0.28, 0.42, 0, 0.36, 0.34, 0.36, "#ffcf4a", 0.04);
-    },
-    paifang: function (c) {},                          // (exitgate 가 패루로 그려집니다)
-    // ================= 🏮 8과 多少钱? — 송나라 시장 물건 =================
-    archway: function (c, x, y) {                      // 거리와 거리 사이 나무 문 (지나갈 수 있음)
-      var B = c.B, rot = (x <= 1 || x >= c.C - 2) ? Math.PI / 2 : 0;
-      B.push(0, 0, 0, rot);
-      for (var s = -1; s <= 1; s += 2) {
-        B.box(s * 0.52, 0, 0, 0.3, 0.25, 0.3, "#8a7a66", 0.04);
-        B.cyl(s * 0.52, 0.25, 0, 0.08, 0.08, 2.1, "#7a3b22", 10);
-      }
-      B.box(0, 2.25, 0, 1.4, 0.14, 0.24, "#7a3b22", 0.02);
-      B.box(0, 2.0, 0.02, 0.9, 0.22, 0.06, "#2f2a26", 0.02);
-      B.box(0, 2.4, 0, 1.6, 0.08, 0.5, "#4a4f5c", 0.02);
-      B.box(0, 2.48, 0, 1.3, 0.12, 0.3, "#3d424d", 0.02);
-      B.pop();
-    },
-    flag: function (c, x, y) {                         // 酒旗 · 가게 깃발 장대
-      var B = c.B, col = pickc(["#c8372d", "#2f6f9a", "#e8a33a", "#3f9b6a", "#f4ead2"], rnd(x, y, 3));
-      B.cyl(0, 0, 0, 0.16, 0.18, 0.08, "#8a7a66", 10);
-      B.cyl(0, 0.08, 0, 0.035, 0.04, 2.5, "#6b4a33", 8);
-      B.box(0.2, 2.45, 0, 0.42, 0.03, 0.03, "#6b4a33", 0.01);
-      B.boxR(0.22, 1.85, 0, 0.36, 1.1, 0.02, col, 0.01, 0, 0, 0.04);
-      B.box(0.22, 1.3, 0.012, 0.36, 0.06, 0.012, "#2f2a26", 0);
-      for (var k = 0; k < 3; k++) B.boxR(0.12 + k * 0.1, 1.24, 0, 0.05, 0.14, 0.02, col, 0.005, 0, 0, 0.1);
-    },
-    ustall: function (c, x, y) {                       // 큰 우산 노점 (물건은 칸마다 달라요)
-      var B = c.B, v = rnd(x, y, 5);
-      B.box(0, 0, 0, 0.9, 0.58, 0.66, "#a8743f", 0.03);
-      B.box(0, 0.58, 0, 0.96, 0.05, 0.72, "#c99a64", 0.02);
-      if (v < 0.25) for (var i = 0; i < 9; i++) B.ball(-0.3 + (i % 3) * 0.3, 0.7, -0.2 + Math.floor(i / 3) * 0.2, 0.08, 0.07, 0.08, i % 2 ? "#e8323c" : "#f2c14e", 8);
-      else if (v < 0.5) for (var j = 0; j < 6; j++) B.ball(-0.28 + (j % 3) * 0.28, 0.69, -0.12 + Math.floor(j / 3) * 0.24, 0.1, 0.07, 0.1, "#fbf3df", 9);
-      else if (v < 0.75) for (var k = 0; k < 4; k++) B.box(-0.3 + k * 0.2, 0.63, 0, 0.17, 0.08 + k * 0.03, 0.5, pickc(["#c8372d", "#2f6f9a", "#3f9b6a", "#f2c14e"], rnd(x + k, y, 2)), 0.02);
-      else for (var m = 0; m < 5; m++) B.cyl(-0.32 + m * 0.16, 0.63, 0, 0.06, 0.07, 0.18, pickc(["#8a5530", "#c9a46a", "#5a7a9a"], rnd(x + m, y, 4)), 10);
-      B.cyl(0.38, 0.63, -0.28, 0.025, 0.025, 1.45, "#6b4a33", 6);
-      B.cylR(0.2, 2.15, -0.1, 0.06, 0.95, 0.32, pickc(["#f4ead2", "#e8c87a", "#d9b48a"], rnd(x, y, 9)), 14, 0.12, 0, -0.12);
-      B.ball(0.25, 2.33, -0.12, 0.05, 0.05, 0.05, "#6b4a33", 6);
-    },
-    cart: function (c, x, y) {                         // 손수레 (짐 · 항아리)
-      var B = c.B;
-      B.box(0, 0.32, 0, 0.9, 0.12, 0.6, "#a8743f", 0.02);
-      for (var s = -1; s <= 1; s += 2) {
-        B.ring(0, 0.3, s * 0.34, 0.28, 0.035, "#6b4a33", 0, 0, 0);
-        for (var k = 0; k < 3; k++) B.boxR(0, 0.3, s * 0.34, 0.03, 0.52, 0.02, "#6b4a33", 0, 0, 0, k * Math.PI / 3);
-        B.boxR(-0.62, 0.42, s * 0.22, 0.6, 0.04, 0.04, "#8a5c38", 0.01, 0, 0, -0.25);
-      }
-      B.cyl(-0.18, 0.44, 0, 0.16, 0.12, 0.34, "#8a5530", 10);
-      B.cyl(0.18, 0.44, -0.1, 0.13, 0.1, 0.28, "#c9a46a", 10);
-      B.box(0.2, 0.44, 0.15, 0.3, 0.22, 0.2, "#d9c49a", 0.04);
-    },
-    donkey: function (c, x, y) {                       // 짐 실은 당나귀
-      var B = c.B, fur = "#8e8780", dk = "#5f5a55";
-      B.push(0, 0, 0, (rnd(x, y, 7) - 0.5) * 0.6);
-      for (var i = -1; i <= 1; i += 2) for (var k = -1; k <= 1; k += 2) {
-        B.cyl(i * 0.22, 0.05, k * 0.09, 0.04, 0.035, 0.52, fur, 8);
-        B.cyl(i * 0.22, 0, k * 0.09, 0.045, 0.045, 0.06, "#3b2f2a", 8);
-      }
-      B.ball(0, 0.68, 0, 0.34, 0.2, 0.18, fur, 12);
-      B.boxR(0.3, 0.88, 0, 0.12, 0.34, 0.12, fur, 0.05, 0, 0, -0.5);
-      B.boxR(0.45, 1.02, 0, 0.28, 0.13, 0.12, fur, 0.05, 0, 0, -0.4);
-      B.ball(0.56, 0.96, 0, 0.06, 0.05, 0.06, "#d9d2c8", 7);
-      for (var s = -1; s <= 1; s += 2) {
-        B.boxR(0.36, 1.18, s * 0.04, 0.04, 0.2, 0.03, dk, 0.01, 0, 0, -0.15 + s * 0.1);
-        B.ball(0.45, 1.06, s * 0.055, 0.02, 0.02, 0.02, "#1f1a17", 6);
-        B.box(0, 0.62, s * 0.24, 0.32, 0.26, 0.14, s > 0 ? "#c9a46a" : "#a8743f", 0.04);   // 짐 보따리
-      }
-      B.boxR(-0.36, 0.62, 0, 0.04, 0.26, 0.04, dk, 0.01, 0, 0, 0.3);
-      B.box(0, 0.86, 0, 0.3, 0.05, 0.42, "#c8372d", 0.02);
-      B.pop();
-    },
-    camel: function (c, x, y) {                        // 낙타 (실크로드 상인)
-      var B = c.B, fur = "#d2a46c";
-      B.push(0, 0, 0, (rnd(x, y, 7) - 0.5) * 0.5);
-      for (var i = -1; i <= 1; i += 2) for (var k = -1; k <= 1; k += 2) B.cyl(i * 0.26, 0, k * 0.1, 0.045, 0.04, 0.85, fur, 8);
-      B.ball(0, 1.0, 0, 0.42, 0.22, 0.2, fur, 12);
-      B.ball(-0.12, 1.24, 0, 0.16, 0.16, 0.14, fur, 10);
-      B.ball(0.14, 1.22, 0, 0.14, 0.14, 0.13, fur, 10);
-      B.boxR(0.42, 1.25, 0, 0.12, 0.5, 0.12, fur, 0.05, 0, 0, -0.35);
-      B.boxR(0.58, 1.5, 0, 0.3, 0.13, 0.13, fur, 0.05, 0, 0, -0.15);
-      for (var s = -1; s <= 1; s += 2) {
-        B.ball(0.6, 1.58, s * 0.06, 0.02, 0.02, 0.02, "#1f1a17", 6);
-        B.box(-0.02, 0.92, s * 0.22, 0.22, 0.24, 0.12, s > 0 ? "#2f6f9a" : "#c8372d", 0.04);
-      }
-      B.box(0, 1.3, 0, 0.5, 0.05, 0.46, "#e8a33a", 0.02);
-      B.pop();
-    },
-    boat: function (c, x, y) {                         // 강 위의 나룻배 (물 위)
-      ONE.pond(c, x, y);
-      var B = c.B;
-      B.push(0, 0, 0, (rnd(x, y, 3) - 0.5) * 0.4);
-      B.box(0, 0.04, 0, 0.92, 0.18, 0.5, "#8a5c38", 0.08);
-      B.box(0, 0.22, 0, 0.84, 0.03, 0.42, "#6b4a33", 0.02);
-      B.boxR(0.5, 0.14, 0, 0.16, 0.12, 0.36, "#8a5c38", 0.04, 0, 0, 0.5);
-      B.boxR(-0.5, 0.14, 0, 0.16, 0.12, 0.36, "#8a5c38", 0.04, 0, 0, -0.5);
-      if (rnd(x, y, 5) < 0.6) {                       // 작은 지붕
-        for (var s = -1; s <= 1; s += 2) B.cyl(s * 0.18, 0.24, 0, 0.015, 0.015, 0.4, "#6b4a33", 5);
-        B.boxR(0, 0.68, 0, 0.5, 0.04, 0.5, "#c9a46a", 0.03, 0.15, 0, 0);
-      } else {
-        B.box(-0.15, 0.25, 0, 0.3, 0.2, 0.3, "#d9c49a", 0.04);
-        B.box(0.18, 0.25, 0.05, 0.2, 0.15, 0.2, "#a8743f", 0.03);
-      }
-      B.boxR(0.35, 0.5, 0.18, 0.02, 0.9, 0.02, "#6b4a33", 0, 0.5, 0, 0.6);
-      B.pop();
-    },
-    scalestall: function (c) {                         // 과일 가게 저울 (1斤)
-      var B = c.B;
-      B.box(0, 0, 0, 0.9, 0.62, 0.66, "#a8743f", 0.03);
-      B.box(0, 0.62, 0, 0.96, 0.05, 0.72, "#c99a64", 0.02);
-      B.cyl(0, 0.67, 0, 0.025, 0.025, 0.72, "#6b4a33", 6);
-      B.box(0, 1.37, 0, 0.7, 0.03, 0.03, "#6b4a33", 0.01);
-      B.cyl(-0.3, 1.0, 0, 0.004, 0.004, 0.37, "#3b2f2a", 4);
-      B.cyl(-0.3, 0.98, 0, 0.14, 0.11, 0.04, "#c9a227", 12);
-      for (var k = 0; k < 3; k++) B.ball(-0.3 + (k - 1) * 0.07, 1.06, (k % 2) * 0.04, 0.055, 0.055, 0.055, "#e8323c", 8);
-      B.cyl(0.25, 1.15, 0, 0.004, 0.004, 0.22, "#3b2f2a", 4);
-      B.cyl(0.25, 1.06, 0, 0.05, 0.06, 0.09, "#4a4f5c", 8);
-      for (var j = 0; j < 8; j++) B.ball(-0.32 + (j % 4) * 0.2, 0.74, -0.16 + Math.floor(j / 4) * 0.3, 0.08, 0.075, 0.08, j % 3 ? "#e8323c" : "#7cc56a", 9);
-    },
-    clothrack: function (c, x, y) {                    // 옷걸이 (치파오 · 비단옷)
-      var B = c.B;
-      for (var s = -1; s <= 1; s += 2) B.cyl(s * 0.42, 0, 0, 0.025, 0.025, 1.55, "#6b4a33", 6);
-      B.box(0, 1.52, 0, 0.9, 0.03, 0.03, "#6b4a33", 0.01);
-      var cols = ["#c8372d", "#e8a33a", "#3f9b6a", "#2f6fd6", "#ff8fb1", "#f4ead2"];
-      for (var k = 0; k < 4; k++) {
-        var col = pickc(cols, rnd(x + k, y, 3)), px = -0.3 + k * 0.2;
-        B.box(px, 1.4, 0, 0.16, 0.12, 0.05, col, 0.03);
-        B.box(px, 0.55, 0, 0.17, 0.86, 0.04, col, 0.04);
-        B.box(px, 1.32, 0.025, 0.06, 0.06, 0.01, "#f2c14e", 0);
-      }
-    },
-    mannequin: function (c, x, y) {                    // 치파오를 입힌 마네킹
-      var B = c.B, col = pickc(["#c8372d", "#2f6fd6", "#e8a33a", "#3f9b6a"], rnd(x, y, 2));
-      B.cyl(0, 0, 0, 0.2, 0.22, 0.05, "#6b4a33", 12);
-      B.cyl(0, 0.05, 0, 0.02, 0.02, 0.35, "#6b4a33", 6);
-      B.cyl(0, 0.4, 0, 0.15, 0.2, 0.7, col, 12);
-      B.ball(0, 1.12, 0, 0.17, 0.12, 0.13, col, 10);
-      B.cyl(0, 1.2, 0, 0.05, 0.05, 0.08, col, 8);
-      B.ball(0, 1.36, 0, 0.09, 0.11, 0.09, "#e6d2b8", 8);
-      for (var k = 0; k < 4; k++) B.ball(0, 0.6 + k * 0.15, 0.17 - k * 0.005, 0.03, 0.03, 0.01, "#f2c14e", 6);
-    },
-    shoeshelf: function (c, x, y) {                    // 신발 선반 (双)
-      var B = c.B;
-      B.box(0, 0, -0.18, 0.92, 1.5, 0.4, "#a8693f", 0.03);
-      for (var r = 0; r < 4; r++) {
-        B.box(0, 0.1 + r * 0.36, -0.12, 0.84, 0.03, 0.36, "#8a5530", 0);
-        for (var k = 0; k < 2; k++) {
-          var col = pickc(["#c8372d", "#2f2f38", "#f4ead2", "#3f9b6a", "#2f6fd6", "#e8a33a"], rnd(x + k, y + r, 5));
-          for (var s = -1; s <= 1; s += 2) B.box(-0.2 + k * 0.4 + s * 0.065, 0.13 + r * 0.36, -0.05, 0.11, 0.09, 0.26, col, 0.04);
-        }
-      }
-    },
-    dyevat: function (c, x, y) {                       // 색깔 염색 항아리 (红黄绿蓝白黑)
-      var B = c.B, cols = ["#e8323c", "#f2c14e", "#3fae5a", "#2f6fd6", "#fbfbf6", "#2f2f38"];
-      var col = cols[Math.floor(x / 2) % cols.length];
-      B.cyl(0, 0, 0, 0.36, 0.3, 0.62, "#8a5530", 14);
-      B.cyl(0, 0.62, 0, 0.38, 0.38, 0.05, "#6b4a33", 14);
-      B.cyl(0, 0.6, 0, 0.32, 0.32, 0.04, col, 14);
-      B.boxR(0.12, 0.85, 0, 0.03, 0.6, 0.03, "#a8693f", 0.01, 0, 0, -0.5);
-      B.cyl(-0.48, 0, 0.1, 0.02, 0.02, 1.6, "#6b4a33", 5);
-      B.box(-0.48, 0.8, 0.1, 0.03, 0.8, 0.3, col, 0.01);
-    },
-    redpaper: function (c, x, y) {                     // 剪纸 빨간 종이 오리기 판
-      var B = c.B;
-      B.box(0, 0, -0.1, 0.9, 1.6, 0.2, "#6b4a33", 0.03);
-      B.box(0, 0.12, 0.005, 0.8, 1.36, 0.02, "#f4ead2", 0.01);
-      for (var k = 0; k < 4; k++) {
-        var px = k % 2 ? 0.2 : -0.2, py = k < 2 ? 1.1 : 0.55;
-        B.cylR(px, py, 0.03, 0.15, 0.15, 0.01, "#d42a24", 12, Math.PI / 2, 0, 0);
-        B.cylR(px, py, 0.04, 0.07, 0.07, 0.01, "#f4ead2", 6, Math.PI / 2, 0, 0);
-        B.boxR(px, py, 0.045, 0.2, 0.025, 0.005, "#d42a24", 0, 0, 0, 0.8);
-      }
-    },
-    moneycounter: function (c, x, y) {                 // 钱庄 환전소 계산대 (엽전 꾸러미 · 주판)
-      var B = c.B;
-      B.box(0, 0, 0, 0.94, 0.78, 0.62, "#7a3b22", 0.04);
-      B.box(0, 0.78, 0, 0.98, 0.05, 0.66, "#5a2a18", 0.02);
-      for (var k = 0; k < 3; k++) {                    // 엽전 꾸러미
-        for (var j = 0; j < 7; j++) B.cylR(-0.3 + k * 0.15, 0.86, -0.18 + j * 0.035, 0.035, 0.035, 0.012, "#c9a227", 8, Math.PI / 2, 0, 0);
-      }
-      B.box(0.25, 0.83, 0.05, 0.36, 0.03, 0.22, "#6b4a33", 0.01);   // 주판
-      for (var r = 0; r < 5; r++) for (var b = 0; b < 4; b++) B.ball(0.12 + r * 0.065, 0.87, -0.03 + b * 0.05, 0.022, 0.018, 0.022, "#2f2a26", 6);
-      B.box(-0.25, 0.83, 0.15, 0.22, 0.01, 0.12, "#ff8fa3", 0);       // 지폐(人民币) 한 장
-    },
-    qrstand: function (c) {                            // ⏱ 미래에서 온 QR 결제 팻말 (Qǐng sǎo yíxià)
-      var B = c.B;
-      B.box(0, 0, 0, 0.5, 0.7, 0.4, "#a8743f", 0.03);
-      B.boxR(0, 0.95, 0, 0.4, 0.5, 0.04, "#ffffff", 0.03, -0.25, 0, 0);
-      for (var i = 0; i < 5; i++) for (var j = 0; j < 5; j++) if ((i * 7 + j * 3) % 4 < 2 || (i < 2 && j < 2))
-        B.boxR(-0.12 + i * 0.06, 0.88 + j * 0.055, 0.03 - j * 0.014, 0.05, 0.045, 0.01, "#1f1a17", 0, -0.25, 0, 0);
-      B.glow(function () { B.boxR(0, 1.17, -0.04, 0.4, 0.06, 0.05, "#3fd0ff", 0.01, -0.25, 0, 0) });
-    },
-    crate: function (c, x, y) { crateHedge(c.B, 0, 0, x, y) },
-    timemachine: function (c) {},
-    // ================= 🏀 5과 你喜欢做什么? — 취미 · 운동 · 장래 희망 =================
-    hoop: function (c, x, y) {                         // 농구 골대 (코트 안쪽을 바라봄)
-      var B = c.B, face = x < c.C / 2 ? Math.PI / 2 : -Math.PI / 2;
-      B.push(0, 0, 0, face);
-      B.box(0, 0, -0.3, 0.5, 0.2, 0.5, "#3d4350", 0.05);
-      B.cyl(0, 0.2, -0.3, 0.06, 0.07, 2.2, "#8e9aa6", 10);
-      B.boxR(0, 2.3, -0.12, 0.08, 0.08, 0.4, "#8e9aa6", 0.02, 0, 0, 0);
-      B.box(0, 2.05, 0.08, 1.1, 0.72, 0.05, "#ffffff", 0.03);
-      B.box(0, 2.1, 0.11, 0.4, 0.3, 0.01, "#e8323c", 0);
-      B.box(0, 2.13, 0.115, 0.34, 0.24, 0.01, "#ffffff", 0);
-      B.ring(0, 2.12, 0.33, 0.2, 0.02, "#ff6a2a", Math.PI / 2, 0, 0);
-      B.fade(function () { B.cyl(0, 1.85, 0.33, 0.2, 0.13, 0.27, "#ffffff", 12) });
-      B.pop();
-    },
-    bleacher: function (c, x, y) {                     // 관중석 (응원하는 사람들)
-      var B = c.B;
-      B.box(0, 0, 0, 1.0, 0.45, 1.0, "#9aa6b0", 0.02);
-      B.box(0, 0.45, 0.05, 1.0, 0.08, 0.5, "#2f6fd6", 0.02);
-      B.box(0, 0.45, -0.25, 1.0, 0.4, 0.08, "#2f6fd6", 0.02);
-      for (var k = 0; k < 2; k++) {
-        var px = -0.24 + k * 0.48, col = pickc(["#e8323c", "#f2c14e", "#3fae5a", "#ffffff", "#ff8fb1", "#2f6fd6"], rnd(x + k, y, 3));
-        B.ball(px, 0.72, 0.02, 0.16, 0.2, 0.13, col, 9);
-        B.ball(px, 1.0, 0.02, 0.12, 0.12, 0.12, "#f3cfa8", 9);
-        B.ball(px, 1.08, -0.02, 0.12, 0.07, 0.12, "#2a1f1a", 8);
-        if (rnd(x + k, y, 5) < 0.6) {                  // 응원 깃발 · 팔 번쩍
-          B.boxR(px + 0.15, 1.05, 0.02, 0.04, 0.3, 0.04, "#f3cfa8", 0.02, 0, 0, -0.4);
-          B.box(px + 0.26, 1.2, 0.02, 0.2, 0.14, 0.01, pickc(["#e8323c", "#f2c14e", "#2f6fd6"], rnd(x, y + k, 7)), 0);
-        }
-      }
-    },
-    goal: function (c, x, y) {                         // 축구 골대 (세 칸 폭)
-      var B = c.B, face = x < c.C / 2 ? Math.PI / 2 : -Math.PI / 2;
-      B.push(0, 0, 0, face);
-      for (var s = -1; s <= 1; s += 2) B.cyl(s * 1.4, 0, 0, 0.05, 0.05, 1.2, "#ffffff", 8);
-      B.box(0, 1.18, 0, 2.86, 0.08, 0.08, "#ffffff", 0.02);
-      B.fade(function () {
-        B.box(0, 0.02, -0.45, 2.8, 1.16, 0.02, "#e8eef2", 0);
-        for (var s2 = -1; s2 <= 1; s2 += 2) B.box(s2 * 1.4, 0.02, -0.22, 0.02, 1.16, 0.45, "#e8eef2", 0);
-        B.box(0, 1.17, -0.22, 2.8, 0.02, 0.45, "#e8eef2", 0);
-      });
-      B.pop();
-    },
-    sball: function (c) {                              // 축구공 (흰색 · 검정 무늬)
-      var B = c.B;
-      B.ball(0, 0.13, 0, 0.13, 0.13, 0.13, "#ffffff", 12);
-      for (var k = 0; k < 5; k++) { var a = k / 5 * Math.PI * 2; B.ball(Math.cos(a) * 0.1, 0.17, Math.sin(a) * 0.1, 0.04, 0.03, 0.04, "#2f2f38", 6) }
-      B.ball(0, 0.26, 0, 0.045, 0.02, 0.045, "#2f2f38", 6);
-    },
-    ballcart: function (c) {                           // 공 수레 (농구공 가득)
-      var B = c.B;
-      B.box(0, 0.1, 0, 0.7, 0.5, 0.5, "#8e9aa6", 0.03);
-      B.box(0, 0.15, 0, 0.62, 0.46, 0.42, "#3d4350", 0.02);
-      for (var k = 0; k < 6; k++) B.ball(-0.2 + (k % 3) * 0.2, 0.68 + Math.floor(k / 3) * 0.08, (k % 2) * 0.12 - 0.06, 0.1, 0.1, 0.1, "#e8742a", 10);
-      for (var s = -1; s <= 1; s += 2) B.ball(s * 0.3, 0.06, 0.2, 0.06, 0.06, 0.06, DARK, 6);
-    },
-    pptable: function (c) {                            // 乒乓球 탁구대
-      var B = c.B;
-      for (var i = -1; i <= 1; i += 2) for (var k = -1; k <= 1; k += 2) B.box(i * 0.6, 0, k * 0.3, 0.05, 0.72, 0.05, "#8e9aa6", 0.01);
-      B.box(0, 0.72, 0, 1.5, 0.05, 0.8, "#2f6fd6", 0.02);
-      B.box(0, 0.775, 0, 1.5, 0.004, 0.02, "#ffffff", 0);
-      B.box(0, 0.775, 0, 0.02, 0.004, 0.8, "#ffffff", 0);
-      B.fade(function () { B.box(0, 0.77, 0, 0.02, 0.15, 0.86, "#f4f7f9", 0) });
-      B.ball(0.35, 0.95, 0.1, 0.025, 0.025, 0.025, "#ff8a2a", 6);
-    },
-    pool: function (c, x, y) {                         // 游泳 수영장 물 (레인 줄)
-      var B = c.B, ob = c.ob;
-      B.floor(0, 0.02, 0, 1, 1, ((x + y) % 2) ? "#4fb6ec" : "#47aee6");
-      B.fade(function () { B.floor(0, 0.06, 0, 1, 1, "#bfe7ff") });
-      if (y % 2 === 0) for (var k = 0; k < 4; k++) B.ball(-0.375 + k * 0.25, 0.07, 0.48, 0.05, 0.035, 0.035, k % 2 ? "#e8323c" : "#ffffff", 6);
-      var v = rnd(x, y, 3);
-      if (v < 0.18) {                                  // 헤엄치는 사람 (머리 · 팔)
-        B.ball(0, 0.1, 0, 0.12, 0.1, 0.12, pickc(["#e8323c", "#f2c14e", "#3fae5a"], rnd(x, y, 4)), 9);
-        B.boxR(0.2, 0.12, 0.05, 0.3, 0.05, 0.06, "#f3cfa8", 0.02, 0, 0.3, 0.6);
-        B.fade(function () { B.ball(-0.25, 0.08, 0, 0.18, 0.04, 0.12, "#ffffff", 7) });
-      }
-    },
-    bnet: function (c) {                               // 羽毛球 배드민턴 네트
-      var B = c.B;
-      for (var s = -1; s <= 1; s += 2) B.cyl(s * 0.48, 0, 0, 0.025, 0.025, 1.55, "#5d6875", 6);
-      B.fade(function () { B.box(0, 0.9, 0, 0.96, 0.6, 0.02, "#2f3540", 0) });
-      B.box(0, 1.5, 0, 0.96, 0.05, 0.03, "#ffffff", 0.01);
-      B.ball(0.2, 1.75, 0.2, 0.03, 0.03, 0.03, "#ffffff", 6);
-    },
-    batcage: function (c) {                            // 棒球 야구 배팅 연습망
-      var B = c.B;
-      for (var i = -1; i <= 1; i += 2) for (var k = -1; k <= 1; k += 2) B.cyl(i * 0.45, 0, k * 0.45, 0.025, 0.025, 1.9, "#5d6875", 6);
-      B.fade(function () {
-        B.box(0, 0, -0.45, 0.92, 1.9, 0.02, "#2f3540", 0);
-        for (var s = -1; s <= 1; s += 2) B.box(s * 0.45, 0, 0, 0.02, 1.9, 0.92, "#2f3540", 0);
-      });
-      B.boxR(0.1, 0.55, 0.1, 0.05, 0.75, 0.05, "#c99a64", 0.02, 0, 0, 0.5);
-      B.ball(-0.15, 0.9, -0.2, 0.04, 0.04, 0.04, "#ffffff", 6);
-    },
-    policecar: function (c) {                          // 警察 경찰차
-      var B = c.B;
-      B.box(0, 0.16, 0, 0.96, 0.32, 0.6, "#ffffff", 0.08);
-      B.box(0, 0.24, 0.305, 0.96, 0.1, 0.01, "#2f6fd6", 0);
-      B.box(-0.05, 0.48, 0, 0.56, 0.24, 0.54, "#ffffff", 0.06);
-      B.glass(function () { B.box(-0.05, 0.5, 0, 0.5, 0.18, 0.56, "#bfe7ff", 0.03) });
-      B.glow(function () { B.box(-0.12, 0.74, 0, 0.12, 0.07, 0.2, "#ff3b4f", 0.02); B.box(0.02, 0.74, 0, 0.12, 0.07, 0.2, "#3fa0ff", 0.02) });
-      for (var i = -1; i <= 1; i += 2) for (var k = -1; k <= 1; k += 2) B.cylR(i * 0.3, 0.14, k * 0.29, 0.13, 0.13, 0.08, DARK, 12, Math.PI / 2, 0, 0);
-    },
-    moviescreen: function (c) {                        // 电影 영화관 큰 화면
-      var B = c.B;
-      B.box(0, 0.3, -0.38, 0.98, 1.6, 0.08, "#2f2f38", 0.02);
-      B.glow(function () {
-        B.box(0, 0.38, -0.33, 0.9, 1.44, 0.01, "#9fd8ff", 0);
-        B.ball(0.15, 1.2, -0.32, 0.16, 0.16, 0.01, "#ffd23f", 10);
-        B.box(-0.2, 0.55, -0.32, 0.5, 0.25, 0.01, "#3fae5a", 0);
-      });
-    },
-    curtain: function (c, x, y) {                      // 무대 빨간 막 (주름)
-      var B = c.B;
-      for (var k = 0; k < 4; k++) B.cyl(-0.36 + k * 0.24, 0, 0.3, 0.12, 0.14, 2.2, k % 2 ? "#b8251c" : "#d42a24", 10);
-      B.box(0, 2.15, 0.3, 1.0, 0.18, 0.3, "#f2c14e", 0.02);
-    },
-    masks: function (c, x, y) {                        // 变脸 · 경극 얼굴 가면 (빨강 · 검정 · 노랑 · 초록 · 하양)
-      var B = c.B, cols = [["#e8323c", "#2f2f38"], ["#2f2f38", "#ffffff"], ["#f2c14e", "#e8323c"], ["#3fae5a", "#2f2f38"], ["#ffffff", "#2f2f38"]];
-      B.box(0, 0, -0.38, 0.96, 1.9, 0.12, "#7a3b22", 0.03);
-      for (var k = 0; k < 4; k++) {
-        var cc = cols[(x + k) % cols.length], px = k % 2 ? 0.22 : -0.22, py = k < 2 ? 1.4 : 0.75;
-        B.ball(px, py, -0.3, 0.17, 0.22, 0.06, cc[0], 10);
-        B.ball(px - 0.07, py + 0.04, -0.25, 0.05, 0.03, 0.02, cc[1], 6);
-        B.ball(px + 0.07, py + 0.04, -0.25, 0.05, 0.03, 0.02, cc[1], 6);
-        B.ball(px, py - 0.1, -0.25, 0.04, 0.05, 0.02, cc[1], 6);
-      }
-    },
-    piying: function (c) {                             // 皮影戏 그림자극 무대
-      var B = c.B;
-      B.box(0, 0, 0, 0.96, 0.6, 0.4, "#7a3b22", 0.03);
-      for (var s = -1; s <= 1; s += 2) B.box(s * 0.46, 0.6, 0, 0.05, 1.1, 0.05, "#7a3b22", 0.01);
-      B.box(0, 1.68, 0, 0.98, 0.08, 0.08, "#c8372d", 0.02);
-      B.glow(function () { B.box(0, 0.62, 0.0, 0.86, 1.04, 0.01, "#ffe9b0", 0) });
-      B.ball(-0.2, 1.1, 0.01, 0.06, 0.06, 0.01, "#2a1f1a", 6);
-      B.box(-0.2, 0.8, 0.01, 0.1, 0.26, 0.01, "#2a1f1a", 0);
-      B.boxR(0.2, 0.85, 0.01, 0.3, 0.14, 0.01, "#2a1f1a", 0, 0, 0, 0.1);
-      B.ball(0.36, 1.0, 0.01, 0.05, 0.07, 0.01, "#2a1f1a", 6);
-    },
-    speaker: function (c) {                            // 스피커 (음악)
-      var B = c.B;
-      B.box(0, 0, 0, 0.5, 1.1, 0.44, "#2f3540", 0.04);
-      B.cylR(0, 0.35, 0.225, 0.17, 0.17, 0.02, "#5d6875", 14, Math.PI / 2, 0, 0);
-      B.cylR(0, 0.82, 0.225, 0.09, 0.09, 0.02, "#5d6875", 12, Math.PI / 2, 0, 0);
-      B.glow(function () { B.ball(0, 1.02, 0.22, 0.03, 0.03, 0.01, "#4dff8a", 6) });
-    },
-    mirror: function (c) {                             // 춤 연습실 큰 거울
-      var B = c.B;
-      B.box(0, 0, -0.4, 1.0, 2.1, 0.08, "#6b7682", 0.02);
-      B.glow(function () {
-        B.box(0, 0.1, -0.355, 0.9, 1.9, 0.01, "#a9c8e0", 0);
-        B.boxR(-0.15, 1.0, -0.348, 0.08, 1.4, 0.005, "#e9f6ff", 0, 0, 0, 0.5);
-        B.boxR(0.2, 1.1, -0.348, 0.04, 1.2, 0.005, "#e9f6ff", 0, 0, 0, 0.5);
-      });
-      B.box(0, 0.95, -0.22, 1.0, 0.05, 0.05, "#c9a46a", 0.02);
-      B.box(0, 0.6, -0.3, 0.04, 0.38, 0.04, "#8e9aa6", 0.01);
-    },
-    dishu: function (c, x, y) {                        // 地书 물로 쓴 바닥 글씨 (지나갈 수 있어요)
-      var B = c.B, ink = "#8a7a66";
-      for (var k = 0; k < 4; k++) {
-        var px = -0.25 + (k % 2) * 0.5, pz = -0.25 + Math.floor(k / 2) * 0.5, r = rnd(x + k, y, 2);
-        B.boxR(px, 0.012, pz, 0.28, 0.005, 0.04, ink, 0, 0, r * 2, 0);
-        B.boxR(px, 0.012, pz, 0.04, 0.005, 0.26, ink, 0, 0, r, 0);
-        B.boxR(px + 0.06, 0.012, pz + 0.05, 0.18, 0.005, 0.035, ink, 0, 0, r * 3, 0);
-      }
-    },
-    trophy1: function (c) {                            // 우승 트로피 받침대
-      var B = c.B;
-      B.box(0, 0, 0, 0.6, 0.7, 0.6, "#3d4350", 0.04);
-      B.cyl(0, 0.7, 0, 0.12, 0.16, 0.1, "#c9a227", 12);
-      B.cyl(0, 0.8, 0, 0.04, 0.04, 0.2, "#f2c14e", 8);
-      B.cyl(0, 1.0, 0, 0.2, 0.08, 0.3, "#f2c14e", 14);
-      for (var s = -1; s <= 1; s += 2) B.ring(s * 0.22, 1.18, 0, 0.07, 0.015, "#f2c14e", 0, 0, 0);
-    },
-    hedge: function (c, x, y) { if (c.S.crates) crateHedge(c.B, 0, 0, x, y); else if (c.S.bamboo) bambooHedge(c.B, 0, 0, x, y); else hedge(c.B, 0, 0, 0.62, x, y) },
+    hedge: function (c, x, y) { hedge(c.B, 0, 0, 0.62, x, y) },
     entrance: function (c, x, y) { entrance(c, x, y) },
-    exitgate: function (c) {                         // 🌈 梦想之门 꿈의 문 (출구)
-      var B = c.B, rb = ["#e8323c", "#ff9a2a", "#f2c14e", "#3fae5a", "#2f6fd6", "#9b59b6"];
-      for (var k = 0; k < rb.length; k++) B.ring(0, 0.2, -0.1 + k * 0.001, 1.25 - k * 0.09, 0.05, rb[k], 0, 0, 0);
+    exitgate: function (c) {                         // 北京站 기차역 개찰구
+      var B = c.B;
       for (var s = -1; s <= 1; s += 2) {
-        B.box(s * 1.2, 0, -0.1, 0.34, 0.3, 0.34, "#c9d1d8", 0.04);
-        B.box(s * 0.55, 0, -0.1, 0.24, 0.9, 0.3, "#c9d1d8", 0.04);
-        B.glow(function () { B.box(s * 0.55, 0.72, 0.06, 0.12, 0.12, 0.01, "#4dff8a", 0.02) });
-        B.box(s * 0.3, 0.45, -0.1, 0.24, 0.3, 0.04, "#e8443a", 0.04);
+        B.box(s * 0.55, 0, 0, 0.28, 1.0, 0.8, "#c9d1d8", 0.04);
+        B.box(s * 0.55, 1.0, 0, 0.3, 0.05, 0.82, "#2f3540", 0.02);
+        B.glow(function () { B.box(s * 0.55, 0.8, 0.41, 0.14, 0.14, 0.01, "#4dff8a", 0.02) });
+        B.box(s * 0.3, 0.5, 0, 0.26, 0.36, 0.04, "#e8443a", 0.04);
+        B.cyl(s * 0.86, 0, -0.3, 0.05, 0.05, 2.1, "#c8372d", 8);
       }
-      B.glow(function () {
-        for (var j = 0; j < 5; j++) { var a = Math.PI * (0.15 + j * 0.175); B.ball(Math.cos(a) * 1.45, 0.2 + Math.sin(a) * 1.45, -0.1, 0.07, 0.07, 0.07, "#ffe066", 6) }
-      });
+      B.box(0, 2.0, -0.3, 1.9, 0.36, 0.1, "#c8372d", 0.03);
+      B.glow(function () { B.box(0, 2.05, -0.24, 1.7, 0.26, 0.01, "#ffe9a8", 0.01) });
     },
     stairup: function (c, x, y) {
       var B = c.B;
@@ -2101,73 +1416,6 @@ window.World3D = (function () {
     }
   }
 
-  // ---------- 7과 물건 도우미 ----------
-  function stoveBase(B) {
-    B.box(0, 0, 0, 0.86, 0.55, 0.66, "#8e9aa6", 0.04);
-    B.box(0, 0.55, 0, 0.9, 0.06, 0.7, "#5d6875", 0.02);
-    B.glow(function () { B.box(0, 0.2, 0.335, 0.3, 0.12, 0.01, "#ff7a2a", 0.02) });
-  }
-  function stovePot(B, soup, kind) {                 // 솥 + 국자 + 김
-    stoveBase(B);
-    B.cyl(0, 0.61, 0, 0.36, 0.32, 0.4, "#b8c1c8", 18);
-    B.cyl(0, 0.97, 0, 0.33, 0.33, 0.02, soup, 18);
-    if (kind === "wonton") for (var k = 0; k < 7; k++) B.ball(Math.cos(k * 0.9) * 0.18, 0.99, Math.sin(k * 0.9) * 0.18, 0.06, 0.03, 0.05, "#fffaf0", 7);
-    else for (var j = 0; j < 4; j++) B.cyl(-0.3 + j * 0.2, 0.61, 0.42, 0.05, 0.04, 0.1, "#fffaf0", 8);
-    for (var s = -1; s <= 1; s += 2) B.box(s * 0.38, 0.9, 0, 0.06, 0.04, 0.1, "#8e9aa6", 0.01);
-    B.boxR(0.15, 1.15, 0.05, 0.03, 0.45, 0.03, "#a8693f", 0.01, 0, 0, -0.5);
-    steam(B, 0, 1.05, 0, 4);
-  }
-  function steam(B, x, y, z, n, col) {               // 모락모락 김
-    B.fade(function () {
-      for (var k = 0; k < n; k++) B.ball(x + Math.sin(k * 2.1) * 0.12, y + k * 0.16, z + Math.cos(k * 1.7) * 0.08, 0.09 + k * 0.025, 0.07 + k * 0.02, 0.09 + k * 0.025, col || "#ffffff", 7);
-    });
-  }
-
-  // ---------- 8과 도우미 : 짐 상자 미로 벽 ----------
-  function crateHedge(B, cx, cz, x, y) {
-    var w = pickc(["#a8743f", "#8a5c38", "#c99a64"], rnd(x, y, 1));
-    B.box(cx, 0, cz, 0.94, 0.5, 0.94, w, 0.04);
-    B.box(cx, 0.5, cz, 0.94, 0.03, 0.94, shade(w, -0.2), 0.01);
-    B.box(cx - 0.18, 0.53, cz + 0.12, 0.5, 0.36, 0.5, shade(w, 0.08), 0.04);
-    if (rnd(x, y, 2) < 0.5) B.ball(cx + 0.25, 0.68, cz - 0.2, 0.2, 0.17, 0.2, "#d9c49a", 8);   // 곡식 자루
-    else B.cyl(cx + 0.24, 0.53, cz - 0.2, 0.15, 0.12, 0.34, "#8a5530", 10);                    // 항아리
-  }
-  function songWindow(B, x, y0, z) {                 // 나무 격자 창
-    B.box(x, y0 - 0.05, z + 0.02, 0.74, 0.8, 0.05, "#5a2a18", 0.02);
-    B.glow(function () { B.box(x, y0, z + 0.05, 0.62, 0.68, 0.02, "#f6e3b4", 0) });
-    for (var k = -1; k <= 1; k++) {
-      B.box(x + k * 0.16, y0, z + 0.07, 0.025, 0.68, 0.02, "#5a2a18", 0);
-      B.box(x, y0 + 0.17 + k * 0.17, z + 0.07, 0.62, 0.025, 0.02, "#5a2a18", 0);
-    }
-  }
-
-  // ---------- 🏀⚽ 경기장 바닥 선 (maps.js 의 court : {type, x0, y0, x1, y1}) ----------
-  function drawCourt(c, K) {
-    // 화면이 살짝 휘어 보이게(곡면) 그리므로, 큰 판 하나 대신 한 칸씩 잘라 그려야 바닥 위에 또렷이 보입니다
-    var B = c.B, x0 = K.x0, x1 = K.x1 + 1, z0 = K.y0, z1 = K.y1 + 1, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
-    var y = 0.008, L = 0.06, col = K.line || "#ffffff", gx, gz;
-    for (gz = z0; gz < z1; gz++) for (gx = x0; gx < x1; gx++) {
-      var fc = K.type === "soccer" ? ((gx % 2) ? "#5fbf5a" : "#6ccb66") : (K.floor || "#d9894a");
-      if (K.type !== "soccer" && ((gx < x0 + 4 || gx >= x1 - 4) && gz >= cz - 1.1 && gz < cz + 1.1)) fc = "#c8372d";
-      B.floor(gx + 0.5, 0.004, gz + 0.5, 1, 1, fc);
-    }
-    function hline(xa, xb, z) { for (var t = xa; t < xb - 0.001; t += 0.5) B.box(t + 0.25, y, z, 0.5, 0.004, L, col, 0) }
-    function vline(x, za, zb) { for (var t = za; t < zb - 0.001; t += 0.5) B.box(x, y, t + 0.25, L, 0.004, Math.min(0.5, zb - t), col, 0) }
-    function circle(x, z, r) { for (var k = 0; k < 28; k++) { var a = k / 28 * Math.PI * 2; B.boxR(x + Math.cos(a) * r, y + 0.002, z + Math.sin(a) * r, 0.24, 0.004, L, col, 0, 0, -a + Math.PI / 2, 0) } }
-    hline(x0, x1, z0 + L / 2); hline(x0, x1, z1 - L / 2);
-    vline(x0 + L / 2, z0, z1); vline(x1 - L / 2, z0, z1); vline(cx, z0, z1);
-    circle(cx, cz, 1.0);
-    if (K.type === "soccer") {
-      for (var s = -1; s <= 1; s += 2) {
-        var ex = s < 0 ? x0 : x1, px = ex - s * 1.2;
-        vline(px, cz - 1.7, cz + 1.7);
-        hline(Math.min(ex, px), Math.max(ex, px), cz - 1.7); hline(Math.min(ex, px), Math.max(ex, px), cz + 1.7);
-      }
-    } else {
-      for (var s2 = -1; s2 <= 1; s2 += 2) { var hx = s2 < 0 ? x0 + 4 : x1 - 4; vline(hx, cz - 1.1, cz + 1.1); circle(hx, cz, 0.9) }
-    }
-  }
-
   // 의자 (x, z 위치 · ry 는 의자 등받이 방향)
   function chair(B, x, z, ry, seat) {
     B.push(x, 0, z, ry || 0);
@@ -2198,34 +1446,16 @@ window.World3D = (function () {
       if (c.outdoor) {
         B.box(0, H, 0, 1.06, 0.2, 1.06, S.bRoof, 0.03);
         B.box(0, 0, 0, 1, 0.4, 0.2, S.bBase, 0);
-        if (S.song) {                                                      // 천 차양 + 현판
-          B.boxR(0, 2.0, 0.75, 1.5, 0.04, 0.7, S.awning || "#c9a46a", 0.02, 0.25, 0, 0);
-          for (var a2 = -1; a2 <= 1; a2 += 2) B.cyl(a2 * 0.7, 0, 1.05, 0.03, 0.03, 1.95, "#6b4a33", 6);
-          B.box(0, 2.45, 0.52, 0.9, 0.3, 0.06, "#2f2a26", 0.02);
-          B.glow(function () { B.box(0, 2.49, 0.555, 0.78, 0.2, 0.01, "#e8c35a", 0) });
-        } else {
         B.box(0, 1.9, 0.62, 1.4, 0.08, 0.5, "#ef7f6a", 0.03);             // 차양
         for (var k = 0; k < 4; k++) B.box(-0.525 + k * 0.35, 1.9, 0.875, 0.175, 0.1, 0.04, k % 2 ? "#ef7f6a" : "#fffaf0", 0.01);
         B.cylR(0, 2.72, 0.53, 0.3, 0.3, 0.07, "#ffffff", 22, Math.PI / 2, 0, 0);   // 건물 시계
         B.cylR(0, 2.72, 0.57, 0.25, 0.25, 0.02, "#fffaf0", 22, Math.PI / 2, 0, 0);
         B.boxR(0, 2.79, 0.59, 0.025, 0.15, 0.01, "#3b2f2a", 0, 0, 0, 0);
         B.boxR(0.05, 2.72, 0.59, 0.11, 0.025, 0.01, "#3b2f2a", 0, 0, 0, 0.5);
-        }
       } else {
         B.box(0, H, 0, 1, 0.05, 1, S.cap, 0);
       }
       zd = -0.3;
-    }
-    if (S.song) {                                    // 활짝 열린 나무 문 + 어두운 가게 안
-      B.box(-0.46, 0, zd, 0.08, 1.9, 0.12, "#5a2a18", 0.02);
-      B.box(0.46, 0, zd, 0.08, 1.9, 0.12, "#5a2a18", 0.02);
-      B.box(0, 1.84, zd, 1, 0.1, 0.14, "#5a2a18", 0.02);
-      B.box(0, 0.02, zd - 0.06, 0.86, 1.8, 0.02, "#3a2a20", 0);
-      B.glow(function () { B.box(0, 1.3, zd - 0.04, 0.5, 0.3, 0.01, "#f6c66a", 0) });
-      for (var d2 = -1; d2 <= 1; d2 += 2) B.boxR(d2 * 0.5, 0.02, zd + 0.2, 0.04, 1.78, 0.4, "#7a3b22", 0.01, 0, d2 * 0.9, 0);
-      B.box(0, 0, zd + 0.42, 0.9, 0.025, 0.5, "#8a7a66", 0.02);
-      B.pop();
-      return;
     }
     // 문틀
     B.box(-0.46, 0, zd, 0.08, 1.9, 0.12, "#f4f1ea", 0.02);
@@ -2541,40 +1771,6 @@ window.World3D = (function () {
     principal: { kind: "elephant", fur: "#a9bcd2", fur2: "#c8d6e6", ears: "big", snout: "trunk", shirt: "#6b5a82", pants: "#3f3550", acc: ["tie", "glasses"], tie: "#ffcf4a" },
     nurse:     { kind: "sheep", fur: "#fff3e0", fur2: "#fffaf2", ears: "small", snout: "cat", shirt: "#ffffff", pants: "#f3a7b8", acc: ["nursecap", "wool"] },
     cook:      { kind: "pig", fur: "#f7b1bf", fur2: "#ffd2da", ears: "pointy", snout: "pig", shirt: "#ffffff", pants: "#8a8f99", acc: ["chef", "apron"] },
-    // 🐼 대나무를 들고 재롱떠는 판다 (팔·다리는 검정 · 손에 대나무)
-    panda1:    { kind: "panda", fur: "#ffffff", fur2: "#ffffff", ears: "round", earCol: "#2f2f38", snout: "muzzle", patch: "#2f2f38",
-                 shirt: "#ffffff", sleeve: "#2f2f38", hand: "#2f2f38", pants: "#2f2f38", acc: ["bamboo"], fun: true },
-    panda2:    { kind: "panda", fur: "#fffaf0", fur2: "#ffffff", ears: "round", earCol: "#2f2f38", snout: "muzzle", patch: "#2f2f38",
-                 shirt: "#fffaf0", sleeve: "#2f2f38", hand: "#2f2f38", pants: "#2f2f38", acc: ["bamboo", "ribbon"], ribbon: "#ff8fb1", fun: true },
-    panda3:    { kind: "panda", fur: "#ffffff", fur2: "#ffffff", ears: "round", earCol: "#2f2f38", snout: "muzzle", patch: "#2f2f38",
-                 shirt: "#ffffff", sleeve: "#2f2f38", hand: "#2f2f38", pants: "#2f2f38", acc: ["bamboo", "chef"], fun: true },
-    // 🏮 송나라 시장 사람들 (한푸 · 두건)
-    // 🏀 5과 : 운동 · 취미 · 직업 사람들
-    taichi:    { kind: "human", skin: "#f3cfa8", hair: "#d9d2c8", shirt: "#ffffff", pants: "#ffffff", shoes: "#2f2a26", fun: "taichi" },
-    taichi2:   { kind: "human", skin: "#f7d8b8", hair: "#2a1f1a", shirt: "#f4ead2", pants: "#f4ead2", shoes: "#2f2a26", acc: ["fan"], fun: "taichi" },
-    dancer:    { kind: "human", skin: "#f7d8b8", hair: "#1f1a17", shirt: "#e8323c", pants: "#2f2f38", shoes: "#2f2a26", acc: ["fan"], fun: "dance" },
-    dancer2:   { kind: "human", skin: "#f3cfa8", hair: "#3b2a22", shirt: "#ff8fb1", pants: "#2f2f38", shoes: "#c8372d", fun: "dance" },
-    bball:     { kind: "human", skin: "#f3cfa8", hair: "#2a1f1a", shirt: "#e8323c", pants: "#e8323c", shoes: "#ffffff", acc: ["bball"], fun: "hoop" },
-    bball2:    { kind: "human", skin: "#eec39a", hair: "#1f1a17", shirt: "#2f6fd6", pants: "#2f6fd6", shoes: "#ffffff", fun: "hoop" },
-    soccer:    { kind: "human", skin: "#f3cfa8", hair: "#2a1f1a", shirt: "#3fae5a", pants: "#ffffff", shoes: "#2f2f38", fun: "kick" },
-    soccer2:   { kind: "human", skin: "#f7d8b8", hair: "#3b2a22", shirt: "#f2c14e", pants: "#2f2f38", shoes: "#2f2f38", fun: "kick" },
-    opera1:    { kind: "human", skin: "#ffffff", face2: "#e8323c", hair: "#1f1a17", shirt: "#f2c14e", pants: "#e8323c", shoes: "#2f2f38", acc: ["crown"], fun: "opera" },
-    opera2:    { kind: "human", skin: "#f7e6d8", face2: "#2f2f38", hair: "#1f1a17", shirt: "#2f6fd6", pants: "#2f2f38", shoes: "#2f2f38", acc: ["crown"], fun: "opera" },
-    police:    { kind: "human", skin: "#f3cfa8", hair: "#2a1f1a", shirt: "#2f4a7a", pants: "#2f3a55", shoes: "#2f2a26", acc: ["cap"], cap: "#2f3a55" },
-    doctor:    { kind: "human", skin: "#f7d8b8", hair: "#3b2a22", shirt: "#ffffff", pants: "#9fc8f0", shoes: "#ffffff", acc: ["glasses"] },
-    chef:      { kind: "human", skin: "#f3cfa8", hair: "#2a1f1a", shirt: "#ffffff", pants: "#2f2f38", shoes: "#2f2a26", acc: ["chef", "apron"] },
-    office1:   { kind: "human", skin: "#f3cfa8", hair: "#2a1f1a", shirt: "#3d4f63", pants: "#2f3540", shoes: "#2f2a26", acc: ["tie"], tie: "#e8323c" },
-    singer:    { kind: "human", skin: "#f7d8b8", hair: "#1f1a17", shirt: "#9b59b6", pants: "#2f2f38", shoes: "#ff8fb1", acc: ["ribbon"], ribbon: "#ffd23f", fun: "sing" },
-    // ⏱ 타임머신을 탄 교과서 친구들
-    hanna:     { kind: "human", skin: "#f7d3b1", hair: "#3b2a22", shirt: "#7fc87a", pants: "#2f3f66", shoes: "#e8443a", acc: ["ribbon"], ribbon: "#ff8fb1" },
-    dongmin:   { kind: "human", skin: "#f7d3b1", hair: "#2a1f1a", shirt: "#9fc8f0", pants: "#5a6b88", shoes: "#3b2f2a", acc: ["glasses"] },
-    zhangpei:  { kind: "human", skin: "#f3cfa8", hair: "#2a1f1a", shirt: "#9b59b6", pants: "#2f3f66", shoes: "#3b2f2a" },
-    wangjj:    { kind: "human", skin: "#f7d8b8", hair: "#1f1a17", shirt: "#ff9fcf", pants: "#6b5aa8", shoes: "#c8372d", acc: ["ribbon"], ribbon: "#ffd23f" },
-    song1:     { kind: "human", skin: "#f3cfa8", hair: "#2a1f1a", shirt: "#c8372d", pants: "#5a2a18", shoes: "#2f2a26", acc: ["cap"], cap: "#2f2a26" },
-    song2:     { kind: "human", skin: "#f7d8b8", hair: "#1f1a17", shirt: "#3f9b6a", pants: "#f4ead2", shoes: "#3b2f2a", acc: ["apron"], apron: "#f4ead2" },
-    song3:     { kind: "human", skin: "#eec39a", hair: "#2a1f1a", shirt: "#2f6f9a", pants: "#3d2a1a", shoes: "#2f2a26", acc: ["cap"], cap: "#4a4f5c" },
-    song4:     { kind: "human", skin: "#f7d8b8", hair: "#1f1a17", shirt: "#e8a33a", pants: "#7a3b22", shoes: "#3b2f2a", acc: ["strawhat"] },
-    song5:     { kind: "human", skin: "#f3cfa8", hair: "#3b2a22", shirt: "#ff8fb1", pants: "#f4ead2", shoes: "#c8372d", acc: ["ribbon"], ribbon: "#c8372d" },
     gardener:  { kind: "squirrel", fur: "#c46e3e", fur2: "#fbe3c8", ears: "pointy", snout: "cat", shirt: "#8fbf6a", pants: "#6b5a3a", acc: ["strawhat", "apron"], apron: "#6f9a4f", tail: "bushy" }
   };
   var SPH = new T.SphereGeometry(1, 20, 14);
@@ -2619,7 +1815,7 @@ window.World3D = (function () {
     root.add(sh);
     var human = d.kind === "human";
     var face = human ? d.skin : d.fur;
-    var hand = d.hand || (human ? d.skin : d.fur);
+    var hand = human ? d.skin : d.fur;
     var acc = d.acc || [];
     var has = function (a) { return acc.indexOf(a) >= 0 };
 
@@ -2667,7 +1863,7 @@ window.World3D = (function () {
       var arm = new T.Group();
       arm.position.set(s * 0.155, 0.24, 0);
       body.add(arm);
-      part(arm, SPH, d.sleeve || d.shirt, s * 0.01, -0.06, 0, 0.052, 0.085, 0.052, 0, 0, s * 0.25);
+      part(arm, SPH, d.shirt, s * 0.01, -0.06, 0, 0.052, 0.085, 0.052, 0, 0, s * 0.25);
       part(arm, SPH, hand, s * 0.03, -0.14, 0, 0.045);
       arms.push(arm);
     }
@@ -2772,35 +1968,11 @@ window.World3D = (function () {
     // 손에 든 주사기 (주인공)
     var tool = null;
     if (d.tool === "syringe") tool = syringe(arms[1], 0.035, -0.2, 0.02, 1);
-    var ballG = null;                                   // 🏀 농구공 · 탁구채 · 부채 (손에 드는 것)
-    if (has("bball")) { ballG = new T.Group(); ballG.position.set(0.02, -0.2, 0.06); arms[1].add(ballG);
-      part(ballG, SPH, "#e8742a", 0, 0, 0, 0.075); part(ballG, TOR, "#3b2a22", 0, 0, 0, 0.076, 0.02, 0.076, Math.PI / 2, 0, 0) }
-    if (has("paddle")) { ballG = new T.Group(); ballG.position.set(0.02, -0.18, 0.04); arms[1].add(ballG);
-      part(ballG, CYL, "#a8693f", 0, 0, 0, 0.015, 0.08, 0.015); part(ballG, CYL, "#e8323c", 0, -0.09, 0, 0.065, 0.012, 0.065, Math.PI / 2, 0, 0) }
-    if (has("fan")) { ballG = new T.Group(); ballG.position.set(0.02, -0.18, 0.04); arms[1].add(ballG);
-      part(ballG, HALF, "#e8323c", 0, -0.05, 0, 0.16, 0.16, 0.02, Math.PI / 2, 0, 0) }
-    if (has("crown")) {                                 // 경극 머리 장식
-      part(head, CYL, "#f2c14e", 0, 0.45, 0, 0.24, 0.12, 0.22);
-      for (var cr = 0; cr < 5; cr++) part(head, SPH, cr % 2 ? "#e8323c" : "#3fd0ff", -0.16 + cr * 0.08, 0.55, 0.12, 0.035);
-      part(head, SPH, "#ff6b9d", 0, 0.62, 0.05, 0.06);
-    }
-    if (d.face2) {                                      // 경극 · 변검 얼굴 무늬
-      part(head, SPH, d.face2, 0, 0.3, 0.21, 0.2, 0.08, 0.06);
-      part(head, SPH, d.face2, 0, 0.12, 0.22, 0.05, 0.14, 0.04);
-    }
-    var bam = null;                                     // 🎋 판다가 든 대나무
-    if (has("bamboo")) {
-      bam = new T.Group(); bam.position.set(0.03, -0.15, 0.04); arms[1].add(bam);
-      part(bam, CYL, "#7cc56a", 0, 0.05, 0, 0.022, 0.34, 0.022);
-      for (var bk = 0; bk < 3; bk++) part(bam, CYL, "#5ea84f", 0, -0.08 + bk * 0.1, 0, 0.026, 0.012, 0.026);
-      part(bam, SPH, "#8fd27a", 0.06, 0.2, 0, 0.09, 0.025, 0.04, 0, 0, -0.6);
-      part(bam, SPH, "#6fbf5f", -0.05, 0.17, 0.02, 0.08, 0.022, 0.035, 0, 0, 0.7);
-    }
     model.scale.setScalar(0.88);
 
     return {
       root: root, model: model, body: body, head: head, eyes: eyes, legs: legs, arms: arms,
-      stars: stars, tool: tool, zombie: !!d.zombie, fun: d.fun === true ? "panda" : (d.fun || ""), bam: bam, ball: ballG,
+      stars: stars, tool: tool, zombie: !!d.zombie,
       px: null, pz: null, face: 0, walk: 0, phase: 0, blinkT: 1 + Math.random() * 3, t: Math.random() * 10
     };
   }
@@ -2958,76 +2130,8 @@ window.World3D = (function () {
         c.body.rotation.y = 0.35 * ak;
       } else c.body.rotation.y = 0;
     }
-    // 🎬 움직임 모드 (o.mode 가 있으면 그것, 없으면 캐릭터 모습에 정해진 것)
-    //   taichi 태극권 · dance 광장무 · hoop 농구 · kick 축구 · swing 탁구 · opera 경극 · sing 노래 · panda 판다 재롱
-    c.hop = 0;
-    var MODE = o.mode || c.fun;
-    if (!c.seed) c.seed = Math.random() * 20;
-    var T2 = c.t + c.seed;
-    if (MODE && MODE !== "panda" && c.walk < 0.3 && !o.talk) {
-      if (MODE === "taichi") {                          // 느릿느릿 태극권 (모두 같은 박자로)
-        var tq = clockT * 0.9;
-        c.arms[0].rotation.x = -1.3 - Math.sin(tq) * 0.5; c.arms[1].rotation.x = -1.3 - Math.sin(tq + 1.2) * 0.5;
-        c.arms[0].rotation.z = -0.5 - Math.sin(tq * 0.5) * 0.4; c.arms[1].rotation.z = 0.5 + Math.sin(tq * 0.5 + 1) * 0.4;
-        c.legs[0].rotation.x = Math.sin(tq * 0.5) * 0.35; c.legs[1].rotation.x = -Math.sin(tq * 0.5) * 0.2;
-        c.body.rotation.y = Math.sin(tq * 0.5) * 0.35;
-        c.hop = -0.03 - Math.abs(Math.sin(tq * 0.5)) * 0.03;
-      } else if (MODE === "dance") {                    // 광장무 · 춤 (다 같이 박자 맞춰)
-        var td = clockT * 4.2;
-        c.arms[0].rotation.x = -2.4 + Math.sin(td) * 0.6; c.arms[1].rotation.x = -2.4 - Math.sin(td) * 0.6;
-        c.arms[0].rotation.z = -0.4; c.arms[1].rotation.z = 0.4;
-        c.model.rotation.z = Math.sin(td) * 0.12;
-        c.legs[0].rotation.x = Math.max(0, Math.sin(td)) * 0.6; c.legs[1].rotation.x = Math.max(0, -Math.sin(td)) * 0.6;
-        c.hop = Math.abs(Math.sin(td)) * 0.06;
-      } else if (MODE === "hoop") {                     // 드리블 → 점프 슛
-        var ph2 = T2 % 5;
-        if (ph2 < 3.6) { c.arms[1].rotation.x = -0.6 + Math.abs(Math.sin(T2 * 7)) * 0.7; c.hop = 0; if (c.ball) c.ball.position.y = -0.2 - Math.abs(Math.sin(T2 * 7)) * 0.12 }
-        else { var jk = Math.sin((ph2 - 3.6) / 1.4 * Math.PI); c.hop = jk * 0.35; c.arms[0].rotation.x = -2.9 * jk; c.arms[1].rotation.x = -2.9 * jk; if (c.ball) c.ball.position.y = -0.2 }
-      } else if (MODE === "kick") {                     // 공 차기
-        var kk = T2 % 2.4;
-        c.legs[1].rotation.x = kk < 0.5 ? -Math.sin(kk / 0.5 * Math.PI) * 1.2 : 0;
-        c.arms[0].rotation.x = kk < 0.5 ? 0.6 : 0; c.arms[1].rotation.x = kk < 0.5 ? -0.6 : 0;
-        c.hop = Math.abs(Math.sin(T2 * 5)) * 0.03;
-      } else if (MODE === "swing") {                    // 탁구 · 배드민턴 스윙
-        var sw = Math.sin(T2 * 5);
-        c.arms[1].rotation.x = -1.0 + sw * 0.4; c.arms[1].rotation.z = 0.4 + sw * 0.5;
-        c.body.rotation.y = sw * 0.3; c.hop = Math.abs(Math.sin(T2 * 2.5)) * 0.04;
-      } else if (MODE === "opera") {                    // 경극 : 긴 소매를 휘날리며 고개를 홱
-        var op = T2 % 4;
-        c.arms[0].rotation.x = -1.6 + Math.sin(T2 * 2) * 0.8; c.arms[1].rotation.x = -2.2 - Math.sin(T2 * 2) * 0.5;
-        c.arms[0].rotation.z = -0.8; c.arms[1].rotation.z = 0.6;
-        c.head.rotation.y = op < 2 ? 0.5 : -0.5;
-        c.legs[0].rotation.x = Math.sin(T2 * 2) * 0.3;
-      } else if (MODE === "sing") {                     // 노래 (마이크를 입에)
-        c.arms[1].rotation.x = -2.3; c.arms[1].rotation.z = -0.2;
-        c.arms[0].rotation.x = -1.2 + Math.sin(T2 * 3) * 0.6; c.arms[0].rotation.z = -0.6;
-        c.head.rotation.z = Math.sin(T2 * 3) * 0.12; c.hop = Math.abs(Math.sin(T2 * 3)) * 0.04;
-      }
-    }
-    if (MODE === "panda" && c.walk < 0.3) {
-      var ph = T2 % 13;
-      if (ph < 7 || o.talk) {                         // 냠냠
-        c.arms[1].rotation.x = -2.15 + Math.sin(c.t * 7) * 0.12;
-        c.arms[1].rotation.z = -0.35;
-        c.arms[0].rotation.x = -1.2 + Math.sin(c.t * 7 + 1) * 0.1;
-        c.head.rotation.x = Math.sin(c.t * 14) * 0.06 - 0.05;
-        c.body.rotation.z = Math.sin(c.t * 1.6) * 0.06;
-      } else if (ph < 10) {                           // 엉덩이춤 + 깡총
-        c.model.rotation.z = Math.sin(c.t * 9) * 0.22;
-        c.arms[0].rotation.x = -2.6; c.arms[1].rotation.x = -2.6 + Math.sin(c.t * 9) * 0.3;
-        c.hop = Math.abs(Math.sin(c.t * 4.5)) * 0.14;
-      } else {                                        // 데굴데굴
-        var rk = (ph - 10) / 3;
-        c.model.rotation.x = rk * Math.PI * 2;
-        c.hop = Math.sin(rk * Math.PI) * 0.22;
-        c.arms[0].rotation.x = -1; c.arms[1].rotation.x = -1;
-      }
-    }
     c.root.visible = !o.hide;                         // 다쳤을 때 깜빡깜빡
-    var hy = hAt(x, y);                               // ⛰ 계단을 오르내리면 부드럽게 따라 올라갑니다
-    if (c.hy === undefined || Math.abs(hy - c.hy) > 1) c.hy = hy;
-    else c.hy += (hy - c.hy) * Math.min(1, dt * 14);
-    c.root.position.set(x, c.hy + (c.hop || 0), y);
+    c.root.position.set(x, 0, y);
     c.model.rotation.y = c.face + (o.spin || 0);
     var sc = o.scale === undefined ? 1 : o.scale;
     c.root.scale.setScalar(sc);
@@ -3147,7 +2251,6 @@ window.World3D = (function () {
   function loadRoom(id, M, opt) {
     if (!ready) return null;
     if (roomGrp) { scene.remove(roomGrp); disposeGroup(roomGrp) }
-    curLift = M.lift || null;
     room = buildRoom(id, M, opt);
     roomGrp = room.group;
     roomGrp.userData.room = true;
@@ -3210,7 +2313,7 @@ window.World3D = (function () {
   var OV = {}, OVused = {};
   function label(key, cls, content, x, h, y) {
     if (!labelsEl) return;
-    var pt = project(x, h + hAt(x, y), y);
+    var pt = project(x, h, y);
     if (!pt.vis || pt.x < -150 || pt.x > W + 150 || pt.y < -150 || pt.y > H + 200) return;
     var e = OV[key];
     if (!e) {
@@ -3266,7 +2369,7 @@ window.World3D = (function () {
     var col = RING_COL[kind] || RING_COL.quiz;
     e.m1.color.setHex(col); e.m2.color.setHex(col);
     var pulse = kind === "done" ? 0 : Math.sin(clockT * 3.2 + x) * 0.5 + 0.5;
-    e.group.position.set(x, 0.02 + hAt(x, y), y);
+    e.group.position.set(x, 0.02, y);
     e.group.scale.setScalar(1 + pulse * 0.12);
     e.m1.opacity = kind === "done" ? 0.55 : 0.65 + pulse * 0.3;
     e.m2.opacity = kind === "done" ? 0.1 : 0.12 + pulse * 0.12;
@@ -3281,7 +2384,7 @@ window.World3D = (function () {
     }
     e.used = true;
     var p = Math.sin(clockT * 3 + x * 1.7) * 0.5 + 0.5;
-    e.group.position.set(x, hAt(x, y), y);
+    e.group.position.set(x, 0, y);
     e.spin.position.y = 0.06 + p * 0.07;
     e.spin.rotation.y = clockT * 1.8 + x;
     e.gm.opacity = 0.22 + p * 0.25;
@@ -3291,7 +2394,7 @@ window.World3D = (function () {
     if (!pools.chest) { pools.chest = makeChest(); scene.add(pools.chest.group) }
     var c = pools.chest;
     pools.chestUsed = true;
-    c.group.position.set(x, hAt(x, y), y);
+    c.group.position.set(x, 0, y);
     c.open += ((opened ? 1 : 0) - c.open) * 0.08;
     c.lid.rotation.x = -1.95 * c.open;
     c.note.visible = c.open > 0.3;
@@ -3300,7 +2403,7 @@ window.World3D = (function () {
       var p = Math.sin(clockT * 3.1) * 0.5 + 0.5;
       c.glowM.opacity = 0.25 + p * 0.3;
       c.glow.scale.setScalar(1 + p * 0.1);
-      c.group.position.y = hAt(x, y);
+      c.group.position.y = 0;
       c.group.rotation.z = Math.sin(clockT * 9) * 0.02;
     } else c.group.rotation.z = 0;
   }
@@ -3318,7 +2421,7 @@ window.World3D = (function () {
   return {
     init: init, resize: resize, loadRoom: loadRoom, follow: follow, project: project,
     begin: begin, end: end, char: char, anim: animChar, ring: ring, chest: chest, item: item,
-    label: label, hideLabels: hideLabels, heightAt: hAt,
+    label: label, hideLabels: hideLabels,
     isReady: function () { return ready },
     looks: LOOKS
   };

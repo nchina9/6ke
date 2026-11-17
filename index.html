@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
-<title>你喜欢做什么? 꿈과 취미 탈출 3D</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%80%3C/text%3E%3C/svg%3E">
+<title>你去哪儿? 베이징 탈출 3D</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%84%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
-<link rel="stylesheet" href="style.css?v=70">
+<link rel="stylesheet" href="style.css?v=67">
 </head>
 <body>
 <header>
-  <div class="title">🏀 你喜欢做什么? 꿈과 취미 탈출</div>
-  <div id="place">梦想广场 꿈의 광장</div>
+  <div class="title">🚄 你去哪儿? 베이징 탈출</div>
+  <div id="place">톈안먼 광장</div>
   <span id="ver" class="ver" title="눌러서 상태 확인"></span>
   <div id="mini"></div>
   <div class="spacer"></div>
@@ -38,20 +38,20 @@
       <div id="vital" style="display:none"><span class="hearts" id="hearts"></span><span class="ammo" title="주사기 공격 횟수">💉<b id="ammo">5</b></span></div>
       <!-- 오답 마법 연출 -->
       <div id="warp" style="display:none"><div class="rings"><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="wt"><b>✨ 마법에 걸렸습니다</b><small>꿈의 광장으로 돌아갑니다</small></div></div>
+        <div class="wt"><b>✨ 마법에 걸렸습니다</b><small>톈안먼 광장으로 돌아갑니다</small></div></div>
       <!-- 안내문 (데이터 오류 · 3D 를 켤 수 없음 · 상태 확인) -->
       <div id="sysmsg"></div>
     </div>
     <div id="hud">
       <div class="panel">
         <div class="person">
-          <div class="dot"></div><div><b>여행자</b><small>꿈 탐험가</small></div>
+          <div class="dot"></div><div><b>여행자</b><small>베이징 여행자</small></div>
         </div>
         <div class="line">푼 문제 <strong id="progress">0 / 0</strong></div>
         <div class="line">비밀번호 <strong id="pass">?</strong></div>
-        <div class="line">현재 위치 <strong id="where">꿈의 광장</strong></div>
+        <div class="line">현재 위치 <strong id="where">톈안먼 광장</strong></div>
       </div>
-      <div class="panel mission"><b>현재 미션</b><div id="mission">꿈의 도시를 다니며 문제를 찾아보세요.</div></div>
+      <div class="panel mission"><b>현재 미션</b><div id="mission">베이징 곳곳을 다니며 문제를 찾아보세요.</div></div>
     </div>
     <div id="notice"></div>
     <div id="rotate"><div class="ic">📱↻</div><div class="tx">가로로 돌리면<br>화면이 더 커집니다</div></div>
@@ -101,7 +101,7 @@
   <!-- 비밀번호 창 -->
   <div id="pad" class="modal">
     <div class="box padbox">
-      <div class="head"><b>🌈 꿈의 문 잠금 장치</b><button id="padClose">×</button></div>
+      <div class="head"><b>🔒 베이징역 개찰구 잠금 장치</b><button id="padClose">×</button></div>
       <div class="padhint" id="padHint"></div>
       <input id="padText" class="padinput" type="text" autocomplete="off" autocorrect="off"
              autocapitalize="off" spellcheck="false" placeholder="정답을 입력하세요">
@@ -157,9 +157,9 @@
         <div class="cline"></div>
         <div class="cname" id="winName">여행자</div>
         <div class="cbody" id="winBody">
-          축하합니다! 꿈의 문을 열었습니다.<br>
-          梦想成真! 꿈은 이루어진다~ 🌈🏀<br>
-          남은 시간 문제 복습하기 버튼을 눌러 5과 내용을 복습해 보세요
+          축하합니다! 베이징 여행 탈출에 성공했습니다.<br>
+          Wǒ zuò huǒchē qù Shǒu'ěr! 기차를 타고 서울로 출발~ 🚄<br>
+          남은 시간 문제 복습하기 버튼을 눌러 6과 내용을 복습해 보세요
         </div>
         <div class="cfoot">
           <span class="cdate" id="winDate"></span>
@@ -174,17 +174,17 @@
   </div>
 </main>
 
-<script src="start.js?v=70"></script>
-<script src="data/maps.js?v=70"></script>
-<script src="data/quiz.js?v=70"></script>
-<!-- 3D 그리기 : three.js(r149) 와 꿈의 도시를 3D 로 짓는 모듈 -->
+<script src="start.js?v=67"></script>
+<script src="data/maps.js?v=67"></script>
+<script src="data/quiz.js?v=67"></script>
+<!-- 3D 그리기 : three.js(r149) 와 베이징 거리를 3D 로 짓는 모듈 -->
 <script src="lib/three.min.js?v=149"></script>
-<script src="world3d.js?v=70"></script>
+<script src="world3d.js?v=67"></script>
 <!-- 구글 시트에서 문제를 받아온 뒤 game.js 를 실행합니다 -->
-<script src="worldmap.js?v=70"></script>
+<script src="worldmap.js?v=67"></script>
 <!-- 가까이 가면 반응하는 물건 (재미용) -->
-<script src="fxkit.js?v=70"></script>
-<script src="react.js?v=70"></script>
-<script src="data/sheet.js?v=70"></script>
+<script src="fxkit.js?v=67"></script>
+<script src="react.js?v=67"></script>
+<script src="data/sheet.js?v=67"></script>
 </body>
 </html>
